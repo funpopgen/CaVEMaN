@@ -1,0 +1,98 @@
+.TH CaVEMaN 1 "21st May 2016" "CaVEMaN-1.0.0" "Statistical genetics"
+.SH NAME
+.PP
+CaVEMaN \- Causal Variant Evidence Mapping using Non-parametric resampling.
+.\"The GPL v3 License
+.\"
+.\"   Copyright (C) 2016 University of Geneva.
+.\"
+.\"   Author: Andrew Brown <andrew.brown@unige.ch>
+.\"
+.\"   This program is free software: you can redistribute it and/or modify
+.\"   it under the terms of the GNU General Public License as published by
+.\"   the Free Software Foundation, either version 3 of the License, or
+.\"   (at your option) any later version.
+.\"
+.\"   This program is distributed in the hope that it will be useful,
+.\"   but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\"   GNU General Public License for more details.
+.\"
+.\"   You should have received a copy of the GNU General Public License
+.\"   along with this program. If not, see <http://www.gnu.org/licenses/>.
+.\"
+.SH SYNOPSIS
+.PP
+.B CaVEMaN
+.RB [options]
+
+.SH DESCRIPTION
+.PP
+CaVEMaN estimates the probability that a particular variant is the causal variant underlying a genetic association by observing the properties of the association under repeated resampling. The standard mode will run the CaVEMaN analysis on data in standard vcf and bed format, giving the CaVEMaN score for each variant in a cis window of the gene. When there are multiple eQTL for certain genes, the --correct flag will take the list of eQTL and the bed file and create a "single signal" expression bed file. This has a phenotype for each eQTL, regressing out all other eQTL, and can now be analysed using the standard pipeline. Once a results file has been created, a summary results file with the most significant association per gene and the probability that the specific variant is causal can be produced with the --best flag. Finally, the --interval flag will reduce a results file to a set of SNPs with probability x that they contain the causal variant.
+
+.SH OPTIONS
+.TP 10
+.B --help
+Display help information.
+.TP
+.B --version
+Display version information.
+.TP
+.BI "--bed " CHAR
+Phenotype file [last argument].
+.TP
+.BI "--vcf " CHAR
+Genotype file.
+.TP
+.BI "--out, --o " CHAR
+Output file [stdout].
+.TP
+.BI "--job-number " INT
+Split the analysis into a number of smaller runs which can run in parallel on a cluster. This option specifies which of the sub-analyses should be run.
+.TP
+.BI "--genes " INT
+This specifies the number of genes to be analysed in each job.
+.TP
+.BI "--window " INT
+The size in base pairs of the cis window around the transcription start site of the gene [1,000,000].
+.TP
+.BI "--perm " INT(,INT)
+Calculated permuted p values, one following number indicates the number of permutations, two comma separated numbers gives the number of permutations and the seed.
+.TP
+.B --spear
+Runs analysis based on non-parametric Spearman correlation test of association.
+.TP
+.BI "--correct " CHAR
+Specify eQTL file to output single genetic signal bed file..TP
+.TP
+.B --normal
+Map single signal bed file phenotypes onto a normal distribution.
+.TP
+.BI "--best " CHAR
+Produce probabilities for most significant association from results file.
+.TP
+.BI "--interval " CHAR(,DOUBLE)
+Given a results file, produce the smallest set of SNPs with a given probability of containing the causal variant for each gene. Takes either 1 or 2 comma separated arguments, the name of the results file and optionally the required probability [0.9]
+.TP
+.B --noheader
+Suppress writing of header line.
+
+.SH FILE FORMATS
+.HP
+.SS INPUT FILE FORMATS
+.TP
+.B Phenotype
+BED file. This file should only contain genes for which there is an eQTL and should not be compressed.
+.TP
+.B Genotype
+VCF format. This file should be compressed with bgzip and tabixed.
+.TP
+.B eQTL
+With the --correct flag a list of eQTL are required, a tab separated file with the following fields: Gene, Chromosome, Location (bp), Reference allele and Alternate allele (all fields necessary to unqiuely specify the eQTL).
+.TP
+.B Results.
+The --best and --interval flags require only a results file, in the format described in the next section.
+.HP
+.SS OUTPUT FILE FORMAT
+.TP
+Standard run and the --interval flag produce an output file with the following fields: Chromosome, Location (bp), Reference and Alternate alleles of the SNP, followed by the Correlation and P value for association and the CaVEMaN weighting. With the --best flag an extra column is added with the probability of being the causal variant. Running with the --correct flag produces a bed file for further analysis.
