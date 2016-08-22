@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Caveman by funpopgen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Caveman</h1>
+      <h2 class="project-tagline">Causal Variant Evidence MApping with Non-parametric resampling</h2>
+      <a href="https://github.com/funpopgen/CaVEMaN" class="btn">View on GitHub</a>
+      <a href="https://github.com/funpopgen/CaVEMaN/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/funpopgen/CaVEMaN/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="caveman-causal-variant-evidence-mapping-using-non-parametric-resampling" class="anchor" href="#caveman-causal-variant-evidence-mapping-using-non-parametric-resampling" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CaVEMaN Causal Variant Evidence MApping Using Non-parametric resampling</h1>
+
+<p>Given the results of an eQTL mapping analysis, together with the expression, genotype and phenotype files, this software will estimate credible sets of SNPs as well as the probability that the peak eQTL is causal. For more details, please see the paper (soon).</p>
+
+<h2>
+<a id="contents" class="anchor" href="#contents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contents</h2>
+
+<ol>
+<li><a href="#downloading-caveman">Downloading CaVEMaN</a></li>
+<li><a href="#input-data-formats">Input data formats</a></li>
+<li><a href="#creating-a-single-phenotype-bed-file-from-an-eqtl-list">Creating a single phenotype bed file from an eQTL list</a></li>
+<li><a href="#running-caveman">Running CaVEMaN</a></li>
+<li><a href="#extracting-peak-snps-and-estimating-causal-probabilities">Extracting peak SNPs and estimating causal probabilities</a></li>
+<li><a href="#producing-credible-sets-of-snps">Producing credible sets of SNPs</a></li>
+<li><a href="#building-from-source">Building from source</a></li>
+</ol>
+
+<h2>
+<a id="downloading-caveman" class="anchor" href="#downloading-caveman" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Downloading CaVEMaN</h2>
+
+<p>CaVEMaN binaries can be downloaded from here:</p>
+
+<p><a href="https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0">https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0</a></p>
+
+<p>If there are any issues, you can try <a href="#building-from-source">building from source</a>, or contact <a href="mailto:andrew.brown@unige.ch">andrew.brown@unige.ch</a>.</p>
+
+<h2>
+<a id="input-data-formats" class="anchor" href="#input-data-formats" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Input data formats</h2>
+
+<p>CaVEMaN uses the same data formats as fastQTL (<a href="http://fastqtl.sourceforge.net/">http://fastqtl.sourceforge.net/</a>), which the exception that the bed file should be uncompressed. To convert the fastQTL bed file run the following line:</p>
+
+<pre><code>gunzip myphenotypefile.bed.gz
+</code></pre>
+
+<p>The bed file should only contain genes for which an eQTL has been discovered, unless a set of conditional eQTLs have been produced, in which case the next section explains how to produce a new bed file from this list. This requires a list of eQTL, which should be a tab-separated file with no header, and the following fields to uniquely determine the SNP-gene pairs:</p>
+
+<ol>
+<li>Gene</li>
+<li>Chromosome</li>
+<li>Base pair location</li>
+<li>Reference allele</li>
+<li>Alternate allele</li>
+</ol>
+
+<p>The --correct option can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.</p>
+
+<h2>
+<a id="creating-a-single-phenotype-bed-file-from-an-eqtl-list" class="anchor" href="#creating-a-single-phenotype-bed-file-from-an-eqtl-list" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating a single phenotype bed file from an eQTL list</h2>
+
+<p>CaVEMaN is based on the assumption that there is only one eQTL signal in the cis window. In cases where multiple eQTLs are known for a given gene, we can produce "single signal" phenotypes by regressing out all but one eQTL at a time (and optionally covariates as well). Given an expression bed file (expression.bed), a genotype file (genotype.vcf.gz) and a list of eQTL (eqtl.list), we produce the file with the following command:</p>
+
+<pre><code> CaVEMaN --correct eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
+     --out corrected.expression.bed
+</code></pre>
+
+<p>If a set of important covariates are known (covariates.txt) were included in the eQTL mapping, these can be considered as well:</p>
+
+<pre><code> CaVEMaN --correct eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
+     --out corrected.expression.bed --cov covariates.txt
+</code></pre>
+
+<h2>
+<a id="running-caveman" class="anchor" href="#running-caveman" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running CaVEMaN</h2>
+
+<p>To run CaVEMaN, all that is necessary is a bed file containing expression values (expression.bed) and a vcf file containing genotype values (genotype.vcf.gz, either the DS or GT field must be present).</p>
+
+<p>CaVEMaN has been designed so that the full analysis can be broken up into chunks, which can be submitted as cluster jobs separately. This requires two flags (if neither are present the whole analysis will be submitted), --genes specifies the number of genes to be analysed in each job, --job-number indexes the job. Therefore, if --genes 10 is specified, --job-number 1 will analyse genes 1-10 in the bed file, --job-number 2 will process genes 11-20 and so on.</p>
+
+<p>To submit a job array, with a bed file of 9,995 genes, where each job analyses 50 genes, we would submit the following command to an LSF cluster:</p>
+
+<pre><code> bsub -o out -J"CaVEMaN[1-200]" \
+     "CaVEMaN --bed expression.bed --vcf genotype.vcf.gz --genes 50 \
+     --job-number \LSB_JOBINDEX --out results\LSB_JOBINDEX"
+</code></pre>
+
+<p>In addition, the --perm option allows you to set the number of bootstrap samples used in the analysis.</p>
+
+<p>This command will produce 200 results files, results1-results200. To concatenate them together run:</p>
+
+<pre><code> awk 'FNR&gt;1||NR==1' results* &gt; results.all
+</code></pre>
+
+<p>The output should look like this:</p>
+
+<p><img src="screenshots/CaVEMaN.results.png" alt="CaVEMaN results example"></p>
+
+<p>The output contains every SNP in the cis window, the first five fields specify the gene and SNP, Cor and P fields give the results of a simple correlation analysis of SNP and gene, and CaVEMaN gives the CaVEMaN score, a measure of whether this SNP is causal.</p>
+
+<h2>
+<a id="extracting-peak-snps-and-estimating-causal-probabilities" class="anchor" href="#extracting-peak-snps-and-estimating-causal-probabilities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Extracting peak SNPs and estimating causal probabilities</h2>
+
+<p>Once the CaVEMaN analysis is complete, we can parse the results file to extract the SNP most likely to be causal, and calculate its causal probability (using the results of simulations). To do this run the following command:</p>
+
+<pre><code> CaVEMaN --best results.all --out results.best
+</code></pre>
+
+<p>The file results.best should look like this:</p>
+
+<p><img src="screenshots/CaVEMaN.best.png" alt="Screenshot, peak eQTL"></p>
+
+<p>The file contains the same fields as before, with the addition of the "Probability" column which gives the probability the SNP is causal.</p>
+
+<h2>
+<a id="producing-credible-sets-of-snps" class="anchor" href="#producing-credible-sets-of-snps" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Producing credible sets of SNPs</h2>
+
+<p>Another way to parse the CaVEMaN results involves producing credible sets of SNPs, together with a probability that they contain the causal variant (again, calibrated with the simulations). To extract the sets of SNPs, with probability &gt; 0.8 of containing the causal SNP, run the following command:</p>
+
+<pre><code>CaVEMaN --interval 0.8 --out results.credible.sets
+</code></pre>
+
+<h2>
+<a id="building-from-source" class="anchor" href="#building-from-source" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building from source</h2>
+
+<p>This requires a D compiler and a version of the GNU scientific library, version 2.1 or above.</p>
+
+<h3>
+<a id="cloning-the-repository" class="anchor" href="#cloning-the-repository" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cloning the repository</h3>
+
+<p>First, clone the repository by running:</p>
+
+<pre><code>git clone https://github.com/funpopgen/CaVEMaN.git
+</code></pre>
+
+<p>This should create a folder called CaVEMaN. Inside this folder is a file called makefile, in the first four lines we can specify the location of the D compiler and also where the gsl library is (if it is not already installed on your cluster).</p>
+
+<h3>
+<a id="download-a-d-compiler" class="anchor" href="#download-a-d-compiler" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Download a D compiler</h3>
+
+<p>Then, download a D compiler from either here: <a href="https://github.com/ldc-developers/ldc/releases">https://github.com/ldc-developers/ldc/releases</a> or here: <a href="http://dlang.org/dmd-linux.html">http://dlang.org/dmd-linux.html</a> (ldc produces faster software, my experience is that dmd works better on older operating systems). Decompress the downloaded file, then edit either the third or fourth line of the makefile in the CaVEMaN folder so that it contains the full path to the relevant compiler, i.e. either:</p>
+
+<p><strong>DMD = /path/to/dmd2/linux/bin64/dmd</strong></p>
+
+<p>or</p>
+
+<p><strong>LDC = /path/to/ldc2-1.1.0-beta2-linux-x86_64/bin/ldc2</strong></p>
+
+<h3>
+<a id="installing-if-necessary-gsl-v21" class="anchor" href="#installing-if-necessary-gsl-v21" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installing, if necessary, gsl v2.1</h3>
+
+<p>First, check if a sufficiently recent version of the gsl is already installed by running:
+     gsl-config --version</p>
+
+<p>If this states that version 2.1 or more recent is installed, you can move on to building the software.</p>
+
+<p>Otherwise, download the gsl from here: <a href="http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz">http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz</a></p>
+
+<p>Create a folder to install it to called gsl, then run the following commands:</p>
+
+<pre><code>tar -xf gsl-2.1.tar.gz
+cd gsl-2.1/
+./configure prefix=/path/to/gsl
+make
+make install
+</code></pre>
+
+<p>Then, edit the second line of the makefile in the CaVEMaN folder to give it the full path to the gsl folder you created, i.e.</p>
+
+<p><strong>GSL = /path/to/gsl</strong></p>
+
+<h3>
+<a id="building-the-software" class="anchor" href="#building-the-software" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building the software</h3>
+
+<p>Now to compile, run the commands from the relevant cell in the table (which depend on which compiler you downloaded and whether the gsl was pre-installed).</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ldc</th>
+<th>dmd</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GSL already installed</strong></td>
+<td>make test &amp;&amp; make</td>
+<td>make dmd_test &amp;&amp; make dmd</td>
+</tr>
+<tr>
+<td><strong>GSL installed by  you</strong></td>
+<td>make static_test &amp;&amp; make static</td>
+<td>make dmd_static_test &amp;&amp; make dmd_static</td>
+</tr>
+</tbody>
+</table>
+
+<p>Now the CaVEMaN binary should be within the bin folder in the CaVEMaN directory, running</p>
+
+<pre><code> ./bin/CaVEMaN --help
+</code></pre>
+
+<p>should bring up the help.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/funpopgen/CaVEMaN">Caveman</a> is maintained by <a href="https://github.com/funpopgen">funpopgen</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
