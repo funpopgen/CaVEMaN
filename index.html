@@ -24,6 +24,8 @@
 
 <p>Given the results of an eQTL mapping analysis, together with the expression, genotype and phenotype files, this software will estimate credible sets of SNPs as well as the probability that the peak eQTL is causal. For more details, please see the paper (soon).</p>
 
+<hr>
+
 <h2>
 <a id="contents" class="anchor" href="#contents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contents</h2>
 
@@ -37,6 +39,8 @@
 <li><a href="#building-from-source">Building from source</a></li>
 </ol>
 
+<hr>
+
 <h2>
 <a id="downloading-caveman" class="anchor" href="#downloading-caveman" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Downloading CaVEMaN</h2>
 
@@ -45,6 +49,8 @@
 <p><a href="https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0">https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0</a></p>
 
 <p>If there are any issues, you can try <a href="#building-from-source">building from source</a>, or contact <a href="mailto:andrew.brown@unige.ch">andrew.brown@unige.ch</a>.</p>
+
+<hr>
 
 <h2>
 <a id="input-data-formats" class="anchor" href="#input-data-formats" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Input data formats</h2>
@@ -66,6 +72,8 @@
 
 <p>The --correct option can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.</p>
 
+<hr>
+
 <h2>
 <a id="creating-a-single-phenotype-bed-file-from-an-eqtl-list" class="anchor" href="#creating-a-single-phenotype-bed-file-from-an-eqtl-list" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating a single phenotype bed file from an eQTL list</h2>
 
@@ -80,6 +88,8 @@
 <pre><code> CaVEMaN --correct eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
      --out corrected.expression.bed --cov covariates.txt
 </code></pre>
+
+<hr>
 
 <h2>
 <a id="running-caveman" class="anchor" href="#running-caveman" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running CaVEMaN</h2>
@@ -108,6 +118,8 @@
 
 <p>The output contains every SNP in the cis window, the first five fields specify the gene and SNP, Cor and P fields give the results of a simple correlation analysis of SNP and gene, and CaVEMaN gives the CaVEMaN score, a measure of whether this SNP is causal.</p>
 
+<hr>
+
 <h2>
 <a id="extracting-peak-snps-and-estimating-causal-probabilities" class="anchor" href="#extracting-peak-snps-and-estimating-causal-probabilities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Extracting peak SNPs and estimating causal probabilities</h2>
 
@@ -122,6 +134,8 @@
 
 <p>The file contains the same fields as before, with the addition of the "Probability" column which gives the probability the SNP is causal.</p>
 
+<hr>
+
 <h2>
 <a id="producing-credible-sets-of-snps" class="anchor" href="#producing-credible-sets-of-snps" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Producing credible sets of SNPs</h2>
 
@@ -129,6 +143,8 @@
 
 <pre><code>CaVEMaN --interval 0.8 --out results.credible.sets
 </code></pre>
+
+<hr>
 
 <h2>
 <a id="building-from-source" class="anchor" href="#building-from-source" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building from source</h2>
