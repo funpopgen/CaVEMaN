@@ -58,7 +58,7 @@ double getDosage(char[] field, long loc, bool gt)
 {
   auto fieldSplit = field.split(':');
   enforce(fieldSplit.length > loc, new InputException(""));
-  return gt ? (fieldSplit[loc][0].to!double + fieldSplit[loc][2].to!double)
+  return gt ? cast(ubyte) fieldSplit[loc][0] + cast(ubyte) fieldSplit[loc][2] - 96
     : fieldSplit[loc].to!double;
 }
 
@@ -197,17 +197,9 @@ double[] readWeights(Opts opts)
   }
   else
   {
-    //weights based on sample of 556 individuals
+    //weights based on simulation results across tissues
     weights = [0.5168, 0.1603, 0.09758, 0.06664, 0.04562, 0.03109, 0.02749,
       0.02145, 0.01914, 0.01382];
-
-    //   //weights based on full uk10k sample (1854)
-
-    //   // T[10] weights = [
-    //   //   0.628839949502034, 0.13802777388133, 0.0697152475803058,
-    //   //   0.0462898022162996, 0.0328236779351943, 0.0256697994108571,
-    //   //   0.0178145602468789, 0.0154299340720999, 0.0157104783279562, 0.00967877682704447
-    //   // ];
 
   }
   return weights;
