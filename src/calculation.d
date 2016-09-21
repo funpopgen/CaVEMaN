@@ -1,6 +1,5 @@
 module calculation;
 
-import std.conv : to;
 import std.exception : enforce;
 import std.math : fabs, sqrt;
 import arg_parse : Opts;
@@ -68,41 +67,6 @@ unittest
   double[] vector = [10, 9, 2, 9, 3];
 
   assert(rank(vector) == [5, 3.5, 1, 3.5, 2]);
-}
-
-pure ref T[] rank_discrete(T)(ref T[] rankArray)
-{
-  //easier to rank discrete genotypes
-  T[3] countGenotypes = 0;
-  T[3] rankGenotypes;
-
-  //count numbers of 0, 1, 2 alleles
-  foreach (ref e; rankArray)
-    countGenotypes[e.to!size_t]++;
-  rankGenotypes[0] = (countGenotypes[0] + 1) / 2;
-  rankGenotypes[1] = (2 * countGenotypes[0] + countGenotypes[1] + 1) / 2;
-  rankGenotypes[2] = (2 * countGenotypes[0] + 2 * countGenotypes[1] + countGenotypes[2] + 1) / 2;
-
-  foreach (ref e; rankArray)
-    e = rankGenotypes[e.to!size_t];
-  return rankArray;
-}
-
-unittest
-{
-  //Ranking of discrete genotypes
-  import std.array : array;
-  import std.algorithm : map;
-  import std.conv : to;
-  import std.random;
-  import std.range : iota;
-
-  double[] vector = [0, 1, 0, 2, 2, 2, 1];
-  assert(rank_discrete(vector) == [1.5, 3.5, 1.5, 6, 6, 6, 3.5]);
-
-  auto ranVector = iota(20).map!(a => uniform(0, 3).to!double).array;
-  auto ranVector2 = ranVector.dup;
-  assert(rank_discrete(ranVector) == rank(ranVector2));
 }
 
 pure void transform(ref double[] vector)
