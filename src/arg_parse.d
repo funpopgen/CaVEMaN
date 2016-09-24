@@ -6,7 +6,7 @@ import std.array : array;
 import std.algorithm : canFind, countUntil, filter, joiner, map;
 import std.conv : to, ConvException;
 import std.exception : enforce;
-import std.process : pipeShell, Redirect, wait;
+import std.process : executeShell, pipeShell, Redirect, wait;
 import std.range : indexed, iota;
 import std.stdio : File, writeln, stderr;
 import std.string : chomp;
@@ -104,10 +104,23 @@ OPTIONS:
 
       if (best == "" && interval.length == 0)
       {
+        auto checkTabix = executeShell("command -v tabix");
+
+        if (checkTabix.status != 0)
+        {
+          stderr.writeln("Error: tabix is not installed.");
+          exit(1);
+        }
+
         if (bed == "" && args.length > 1)
+        {
           bed = args[$ - 1];
+        }
+
         if (perms.length == 0)
+        {
           perms = [10_000];
+        }
 
         matchIds();
       }
@@ -239,6 +252,7 @@ static immutable string versionString = "CaVEMaN, Causal Variant Evidence Mappin
 void giveHelp(immutable string quitString)
 {
   import std.compiler;
+
   writeln(quitString);
   writeln("Compiled with ", name, " ", version_major, ".", version_minor);
   exit(0);
