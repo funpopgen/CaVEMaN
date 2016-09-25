@@ -139,7 +139,7 @@ string[][string] getEqtl(string inFile)
   catch (Exception e)
   {
     stderr.writeln("Failed to parse eQTL file. ", e.msg);
-    exit(0);
+    exit(1);
   }
 
   return eqtlList;
@@ -176,7 +176,7 @@ double[][string] getSnps(string[][string] eqtlList, string vcfFile,
         if (!(f in snps))
         {
           stderr.writeln("SNP ", f, " not found in vcf file.");
-          exit(0);
+          exit(1);
         }
       }
     }
@@ -203,7 +203,7 @@ double[] getCov(Opts opts)
         if (tempLine.length < opts.covLocations.length)
         {
           stderr.writeln("Too few individuals in covariates file.");
-          exit(0);
+          exit(1);
         }
         cov ~= tempLine.indexed(opts.covLocations).map!(a => to!double(a)).array;
       }
@@ -211,7 +211,7 @@ double[] getCov(Opts opts)
     catch (Exception e)
     {
       stderr.writeln("Problem reading covariates file. ", e.msg);
-      exit(0);
+      exit(1);
     }
     return cov;
   }
@@ -238,7 +238,7 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
   catch (Exception e)
   {
     stderr.writeln("Trouble opening files. ", e.msg);
-    exit(0);
+    exit(1);
   }
 
   auto nInd = opts.phenotypeLocations.length;

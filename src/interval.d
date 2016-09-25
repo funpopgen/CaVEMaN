@@ -60,7 +60,7 @@ void interval(string[] options, string output)
   catch (Exception e)
   {
     stderr.writeln("Failed to open results file. ", e.msg);
-    exit(0);
+    exit(1);
   }
 
   try
@@ -77,7 +77,7 @@ void interval(string[] options, string output)
   catch (Exception e)
   {
     stderr.writeln("Failed to open results file for writing. ", e.msg);
-    exit(0);
+    exit(1);
   }
 
   outFile.write(resultsFile.readln);

@@ -116,14 +116,14 @@ OPTIONS:
         if (!vcf.exists)
         {
           stderr.writeln("Error: genotype file ", vcf, " does not exist.");
-          exit(0);
+          exit(1);
         }
 
         if (!(vcf ~ ".tbi").exists && !(vcf ~ ".csi").exists)
         {
           stderr.writeln("Error: Neither ", vcf, ".tbi nor ", vcf,
               ".csi files are present, meaning genotype file hasn't been indexed with tabix or bcftools.");
-          exit(0);
+          exit(1);
         }
 
         if (bed == "" && args.length > 1)
@@ -153,8 +153,10 @@ USAGE:    CaVEMaN [options]
 
 OPTIONS:
 ", helpOptions.options);
-
-      exit(0);
+      if (noArgs)
+	exit(0);
+      else
+	exit(1);
     }
   }
 
@@ -170,7 +172,7 @@ OPTIONS:
     catch (Exception e)
     {
       stderr.writeln("Failed to read phenotype IDs. ", e.msg);
-      exit(0);
+      exit(1);
     }
     if (nocheck)
     {
@@ -199,14 +201,14 @@ OPTIONS:
           if (loc == -1)
           {
             stderr.writeln("DS and GT fields are both missing from the vcf file.");
-            exit(0);
+            exit(1);
           }
         }
       }
       catch (Exception e)
       {
         stderr.writeln("Failed to read genotype IDs. ", e.msg);
-        exit(0);
+        exit(1);
       }
 
       phenotypeLocations = genotypeIds.map!(a => phenotypeIds.countUntil(a))
@@ -219,13 +221,13 @@ OPTIONS:
           .array != genotypeIds.indexed(genotypeLocations).array)
       {
         stderr.writeln("Failed to match IDs. THIS SHOULD NEVER HAPPEN.");
-        exit(0);
+        exit(1);
       }
 
       if (genotypeLocations.length == 0 || phenotypeLocations.length == 0)
       {
         stderr.writeln("No individuals to analyse.");
-        exit(0);
+        exit(1);
       }
 
       if (correct != "" && cov != "")
@@ -245,7 +247,7 @@ OPTIONS:
             stderr.writeln(
                 "Individuals in genotype and phenotype file, but not in covariate file. Missing individuals are ",
                 missing, ".");
-            exit(0);
+            exit(1);
           }
 
           covLocations = temp.to!(size_t[]);
@@ -253,7 +255,7 @@ OPTIONS:
         catch (Exception e)
         {
           stderr.writeln("Failed to read covariate IDs. ", e.msg);
-          exit(0);
+          exit(1);
         }
       }
     }

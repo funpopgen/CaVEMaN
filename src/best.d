@@ -47,7 +47,7 @@ void best(Opts opts)
   catch (Exception e)
   {
     stderr.writeln("Failed to read results file. ", e.msg);
-    exit(0);
+    exit(1);
   }
 
   try
@@ -64,7 +64,7 @@ void best(Opts opts)
   catch (Exception e)
   {
     stderr.writeln("Failed to open results file for writing. ", e.msg);
-    exit(0);
+    exit(1);
   }
 
   outFile.writeln(inFile.readln.chomp, "\tProbability");
@@ -116,7 +116,7 @@ void best(Opts opts)
     catch (Exception e)
     {
       stderr.write("Failed to read weights from file. ", e.msg);
-      exit(0);
+      exit(1);
     }
   }
   else
