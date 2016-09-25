@@ -95,6 +95,12 @@ auto readBed(Opts opts)
     stderr.writeln("Too few phenotypes in bed file");
     exit(0);
   }
+
+  if (opts.genes == 0)
+  {
+    opts.genes = uint.max;
+  }
+
   Phenotype[] phenotype;
 
   foreach (line; bedFile.byLine)

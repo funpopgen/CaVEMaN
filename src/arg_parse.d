@@ -21,7 +21,7 @@ class Opts
   //phenotype and genotype ids are given
   bool noheader = false;
   //number of genotype columns to skip, and phenotype column
-  int genes = 1;
+  int genes = 0;
   int jobNumber = 0;
   //permutation numbers and seeds
   bool give_seed = false;
