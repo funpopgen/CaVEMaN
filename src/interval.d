@@ -1,7 +1,8 @@
-import std.stdio : File, readln, stdout, stderr;
-import std.conv : to;
-import std.array : split, array;
+import core.stdc.stdlib : exit;
 import std.algorithm : sort;
+import std.array : split, array;
+import std.conv : to;
+import std.stdio : File, readln, stdout, stderr;
 import std.string : chomp;
 
 extern (C)
@@ -59,6 +60,7 @@ void interval(string[] options, string output)
   catch (Exception e)
   {
     stderr.writeln("Failed to open results file. ", e.msg);
+    exit(0);
   }
 
   try
@@ -74,7 +76,8 @@ void interval(string[] options, string output)
   }
   catch (Exception e)
   {
-    stderr.writeln("Failed to open output file. ", e.msg);
+    stderr.writeln("Failed to open results file for writing. ", e.msg);
+    exit(0);
   }
 
   outFile.write(resultsFile.readln);

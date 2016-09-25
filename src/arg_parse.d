@@ -6,6 +6,7 @@ import std.array : array;
 import std.algorithm : canFind, countUntil, filter, joiner, map;
 import std.conv : to, ConvException;
 import std.exception : enforce;
+import std.file : exists;
 import std.process : executeShell, pipeShell, Redirect, wait;
 import std.range : indexed, iota;
 import std.stdio : File, writeln, stderr;
@@ -110,6 +111,19 @@ OPTIONS:
         {
           stderr.writeln("Error: tabix is not installed.");
           exit(1);
+        }
+
+        if (!vcf.exists)
+        {
+          stderr.writeln("Error: genotype file ", vcf, " does not exist.");
+          exit(0);
+        }
+
+        if (!(vcf ~ ".tbi").exists && !(vcf ~ ".csi").exists)
+        {
+          stderr.writeln("Error: Neither ", vcf, ".tbi nor ", vcf,
+              ".csi files are present, meaning genotype file hasn't been indexed with tabix or bcftools.");
+          exit(0);
         }
 
         if (bed == "" && args.length > 1)

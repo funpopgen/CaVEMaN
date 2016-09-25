@@ -47,6 +47,7 @@ void best(Opts opts)
   catch (Exception e)
   {
     stderr.writeln("Failed to read results file. ", e.msg);
+    exit(0);
   }
 
   try
@@ -62,7 +63,8 @@ void best(Opts opts)
   }
   catch (Exception e)
   {
-    stderr.writeln("Failed to read results file. ", e.msg);
+    stderr.writeln("Failed to open results file for writing. ", e.msg);
+    exit(0);
   }
 
   outFile.writeln(inFile.readln.chomp, "\tProbability");
