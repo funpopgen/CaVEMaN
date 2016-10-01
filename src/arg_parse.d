@@ -270,6 +270,6 @@ void giveHelp(immutable string quitString)
   import std.compiler;
 
   writeln(quitString);
-  writeln("Compiled with ", name, " ", version_major, ".", version_minor);
+  writeln("Compiled with ", name, " ", version_major, ".", version_minor, " at ", __TIME__, ", " __DATE__, ".");
   exit(0);
 }
