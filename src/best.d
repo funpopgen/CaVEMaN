@@ -92,6 +92,7 @@ void best(Opts opts)
         genes[gene].update(line.to!string);
       }
     }
+
   }
 
   import std.range : iota;
@@ -186,7 +187,12 @@ void best(Opts opts)
 
   weights_y.sort!();
 
-  auto caveman = genes.keys.map!(a => genes[a].caveman).array;
+  if (opts.verbose)
+  {
+    stderr.writeln(genes.length, " genes in the results file.");
+  }
+
+  auto caveman = genes.byKey.map!(a => genes[a].caveman).array;
 
   auto maxCaveman = reduce!(min, max)(caveman);
 

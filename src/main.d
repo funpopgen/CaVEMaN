@@ -20,7 +20,8 @@
 */
 
 import std.conv : to;
-import std.stdio : File, writeln;
+import std.range : enumerate;
+import std.stdio : File, stderr, writeln;
 
 import arg_parse : Opts;
 import read_data : Phenotype, readBed, makeOut;
@@ -40,7 +41,6 @@ else
   pragma(lib, "gslcblas");
 }
 
-
 version (unittest)
   void main()
 {
@@ -56,27 +56,57 @@ else
 
   if (opts.correct != "")
   {
+    if (opts.verbose)
+    {
+      stderr.writeln("Producing bed file corrected for multiple eQTL.");
+    }
+
     correct(opts);
   }
   else if (opts.best != "")
   {
+    if (opts.verbose)
+    {
+      stderr.writeln("Converting CaVEMaN score to causal probability.");
+    }
+
     best(opts);
   }
   else if (opts.interval.length != 0)
   {
-    interval(opts.interval, opts.output);
+    if (opts.verbose)
+    {
+      stderr.writeln("Producing credible interval sets.");
+    }
+
+    interval(opts.interval, opts.output, opts.verbose);
   }
   else
   {
+    if (opts.verbose)
+    {
+      stderr.writeln("Running CaVEMaN analysis.");
+    }
+
     auto phenotype = readBed(opts);
+
+    if (opts.verbose)
+    {
+      stderr.writeln("Read ", phenotype.length, " phenotypes.");
+    }
 
     auto permutations = genPerms(opts, phenotype[0].values.length);
 
     auto outFile = makeOut(opts);
 
-    foreach (ref e; phenotype)
+    foreach (ref e; phenotype.enumerate)
     {
-      CaVEMaN(e, permutations, outFile, opts);
+      if (opts.verbose)
+      {
+        stderr.writeln("Analysing gene ", e[1].geneName, " (", e[0] + 1,
+            " out of ", phenotype.length, ").");
+      }
+      CaVEMaN(e[1], permutations, outFile, opts);
     }
   }
 }
@@ -88,7 +118,6 @@ unittest
   import std.digest.sha;
   import std.file : exists, remove;
   import std.range : put;
-  import std.stdio : stderr;
 
   if ("testtemp".exists || "testtemp2".exists)
   {
@@ -157,7 +186,7 @@ unittest
 
   // ./bin/CaVEMaN --interval testtemp,0.6
 
-  interval(["testtemp", "0.6"], "testtemp2");
+  interval(["testtemp", "0.6"], "testtemp2", false);
 
   hash.start;
   put(hash, File("testtemp2").byChunk(1024));

@@ -2,6 +2,7 @@ import core.stdc.stdlib : exit;
 import std.algorithm : sort;
 import std.array : split, array;
 import std.conv : to;
+import std.range : enumerate;
 import std.stdio : File, readln, stdout, stderr;
 import std.string : chomp;
 
@@ -22,7 +23,7 @@ struct Snp
   }
 }
 
-void interval(string[] options, string output)
+void interval(string[] options, string output, bool verbose)
 {
   // auto weights_x = [
   //   0.0, 0.03326427, 0.04492822, 0.05476801, 0.06435118, 0.07377145, 0.08316422, 0.09303571, 0.1037076,
@@ -42,10 +43,7 @@ void interval(string[] options, string output)
 
   threshold = interpolateSingleValue(&interval[140664], &interval[0], 140664, threshold);
 
-  version (unittest)
-  {
-  }
-  else
+  if (verbose)
   {
     stderr.writeln("Equivalent CaVEMaN threshold is ", threshold, ".");
   }
@@ -94,18 +92,27 @@ void interval(string[] options, string output)
     {
       results.sort!("a.bootstrap > b.bootstrap");
       auto count = 0.0;
-      foreach (e; results)
+      foreach (e; results.enumerate)
       {
-        outFile.writeln(e.line);
-        count += e.bootstrap;
-        // auto prob = interpolateSingleValue(weights_x.ptr, weights_y.ptr,
-        //     weights_x.length, e.bootstrap);
-        // outFile.writeln(e.line, "\t", prob);
-        // count += prob;
+        outFile.writeln(e[1].line);
+        count += e[1].bootstrap;
         if (count > threshold)
+        {
+          if (verbose)
+          {
+            stderr.writeln("Gene ", gene, " required ", e[0] + 1, " SNPs.");
+          }
           break;
+        }
       }
+
       gene = splitLine[0].to!string;
+
+      if (verbose)
+      {
+        stderr.writeln("Analysing gene ", gene, ".");
+      }
+
       results = [Snp(line.idup, splitLine[$ - 1].to!double)];
     }
     else
@@ -116,17 +123,19 @@ void interval(string[] options, string output)
 
   results.sort!("a.bootstrap > b.bootstrap");
   auto count = 0.0;
-  foreach (e; results)
+  foreach (e; results.enumerate)
   {
-    outFile.writeln(e.line);
-    count += e.bootstrap;
+    outFile.writeln(e[1].line);
+    count += e[1].bootstrap;
 
-    // auto prob = interpolateSingleValue(weights_x.ptr, weights_y.ptr,
-    //     weights_x.length, e.bootstrap);
-    // outFile.writeln(e.line, "\t", prob);
-    // count += prob;
     if (count > threshold)
+    {
+      if (verbose)
+      {
+        stderr.writeln("Gene ", gene, " required ", e[0] + 1, " SNPs.");
+      }
       break;
+    }
   }
 
 }

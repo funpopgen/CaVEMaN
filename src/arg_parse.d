@@ -3,7 +3,8 @@ module arg_parse;
 import std.array : split;
 import core.stdc.stdlib : exit;
 import std.array : array;
-import std.algorithm : canFind, countUntil, filter, joiner, map;
+import std.algorithm : canFind, countUntil, filter, joiner, map, setDifference,
+  sort;
 import std.conv : to, ConvException;
 import std.exception : enforce;
 import std.file : exists;
@@ -19,6 +20,7 @@ class Opts
   //write appropriate string and quit
   bool version_ = false;
   bool spear = false;
+  bool verbose = false;
   //phenotype and genotype ids are given
   bool noheader = false;
   //number of genotype columns to skip, and phenotype column
@@ -57,6 +59,7 @@ class Opts
 			  "bed", "Phenotype file [last argument].\n", &bed,
 			  "vcf", "Genotype file.\n", &vcf,
 			  "out|o", "Output file [stdout].\n", &output,
+			  "verbose", "Print additional information.", &verbose,
 			  "weights", "Specify CaVEMaN weightings.\n", &weights,
 			  "job-number", "Split the analysis into a number of smaller runs which can run in parallel on a cluster. This option specifies which of the sub-analyses should be run.\n", &jobNumber,
 			  "genes", "This specifies the number of genes to be analysed in each job.\n", &genes,
@@ -154,9 +157,9 @@ USAGE:    CaVEMaN [options]
 OPTIONS:
 ", helpOptions.options);
       if (noArgs)
-	exit(0);
+        exit(0);
       else
-	exit(1);
+        exit(1);
     }
   }
 
@@ -166,8 +169,11 @@ OPTIONS:
     try
     {
       auto bedFile = File(bed);
-
       phenotypeIds = bedFile.readln.chomp.split[4 .. $];
+      if (verbose)
+      {
+        stderr.writeln(phenotypeIds.length, " individuals present in phenotype file.");
+      }
     }
     catch (Exception e)
     {
@@ -178,6 +184,10 @@ OPTIONS:
     {
       genotypeLocations = iota(phenotypeIds.length).array;
       phenotypeLocations = iota(phenotypeIds.length).array;
+      if (verbose)
+      {
+        stderr.writeln("Assuming same individuals in genotype file.");
+      }
     }
     else
     {
@@ -191,6 +201,10 @@ OPTIONS:
         auto line = pipes.stdout.readln.chomp;
 
         genotypeIds = line.split[9 .. $].to!(string[]);
+        if (verbose)
+        {
+          stderr.writeln(genotypeIds.length, " individuals present in genotype file.");
+        }
 
         auto formatField = pipes.stdout.readln.chomp.split[8].split(':');
         loc = countUntil(formatField, "DS");
@@ -217,16 +231,28 @@ OPTIONS:
       genotypeLocations = iota(genotypeIds.length).filter!(
           a => phenotypeIds.canFind(genotypeIds[a])).array;
 
+      if (genotypeLocations.length == 0 || phenotypeLocations.length == 0)
+      {
+        stderr.writeln("No individuals to analyse.");
+        exit(1);
+      }
+
+      if (verbose && genotypeLocations.length != genotypeIds.length)
+      {
+        stderr.writeln(genotypeIds.indexed(setDifference(iota(genotypeIds.length),
+            genotypeLocations)).joiner(", "), " dropped from genotype file.");
+      }
+
+      if (verbose && phenotypeLocations.length != phenotypeIds.length)
+      {
+        stderr.writeln(phenotypeIds.indexed(setDifference(iota(phenotypeIds.length),
+            phenotypeLocations.sort!())).joiner(", "), " dropped from phenotype file.");
+      }
+
       if (phenotypeIds.indexed(phenotypeLocations)
           .array != genotypeIds.indexed(genotypeLocations).array)
       {
         stderr.writeln("Failed to match IDs. THIS SHOULD NEVER HAPPEN.");
-        exit(1);
-      }
-
-      if (genotypeLocations.length == 0 || phenotypeLocations.length == 0)
-      {
-        stderr.writeln("No individuals to analyse.");
         exit(1);
       }
 
@@ -238,6 +264,10 @@ OPTIONS:
         try
         {
           covIds = File(cov).readln.chomp.split;
+          if (verbose)
+          {
+            stderr.writeln(covIds.length, " individuals present in covariates file.");
+          }
 
           auto temp = genotypeIds.indexed(genotypeLocations).map!(a => covIds.countUntil(a)).array;
           if (temp.canFind(-1))
@@ -251,6 +281,12 @@ OPTIONS:
           }
 
           covLocations = temp.to!(size_t[]);
+
+          if (verbose && covLocations.length != covIds.length)
+          {
+            stderr.writeln(covIds.indexed(setDifference(iota(covIds.length),
+                covLocations.sort!())).joiner(", "), " dropped from covariates file.");
+          }
         }
         catch (Exception e)
         {
@@ -270,6 +306,7 @@ void giveHelp(immutable string quitString)
   import std.compiler;
 
   writeln(quitString);
-  writeln("Compiled with ", name, " ", version_major, ".", version_minor, " at ", __TIME__, ", " __DATE__, ".");
+  writeln("Compiled with ", name, " ", version_major, ".", version_minor,
+	  " at ", __TIME__, ", ", __DATE__, ".");
   exit(0);
 }

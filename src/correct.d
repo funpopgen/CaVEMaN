@@ -84,28 +84,20 @@ extern (C)
 void correct(Opts opts)
 {
   auto eqtlList = getEqtl(opts.correct);
-  version (unittest)
+  if (opts.verbose)
   {
-  }
-  else
-  {
-    stderr.writeln("Finished extracting eQTL.");
+    stderr.writeln("Finished extracting ",
+        eqtlList.byKey.map!(a => eqtlList[a].length).reduce!((a, b) => a + b), " eQTL.");
   }
 
   auto snps = getSnps(eqtlList, opts.vcf, opts.genotypeLocations, opts.loc, opts.gt);
-  version (unittest)
+  if (opts.verbose)
   {
-  }
-  else
-  {
-    stderr.writeln("Finished extracting SNPs.");
+    stderr.writeln("Finished extracting ", snps.length, " SNPs.");
   }
 
   auto cov = getCov(opts);
-  version (unittest)
-  {
-  }
-  else
+  if (opts.verbose)
   {
     stderr.writeln("Finished reading covariates.");
   }
@@ -150,7 +142,7 @@ double[][string] getSnps(string[][string] eqtlList, string vcfFile,
 {
   double[][string] snps;
 
-  foreach (e; eqtlList.keys)
+  foreach (e; eqtlList.byKey)
   {
     foreach (f; eqtlList[e])
     {
@@ -244,7 +236,7 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
   auto nInd = opts.phenotypeLocations.length;
   auto baseCov = cov.length / nInd;
   auto outcome = gsl_vector_alloc(nInd);
-  auto maxEqtl = map!(a => eqtlList[a].length)(eqtlList.keys).reduce!(max) + baseCov;
+  auto maxEqtl = eqtlList.byKey.map!(a => eqtlList[a].length).reduce!(max) + baseCov;
   auto workSpace = gsl_multifit_linear_alloc(nInd, maxEqtl);
   auto residuals = gsl_vector_alloc(nInd);
   double chisq;

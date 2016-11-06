@@ -6,7 +6,7 @@ import std.conv : ConvException, to;
 import std.math : fabs;
 import std.numeric : dotProduct;
 import std.range : chunks, enumerate, indexed, zip;
-import std.stdio : File, writeln;
+import std.stdio : File, stderr, writeln;
 
 import calculation : correlation, rank, Opts, transform, VarianceException;
 import read_data : Phenotype, Genotype, readGenotype, readWeights;
@@ -52,6 +52,11 @@ void CaVEMaN(Phenotype phenotype, size_t[] perms, File outFile, Opts opts)
 {
   auto genotype = readGenotype(opts, phenotype.chromosome, phenotype.location,
       phenotype.values.length, phenotype.geneName);
+
+  if (opts.verbose)
+  {
+    stderr.writeln("Extracted ", genotype.length, " usable genotypes.");
+  }
 
   auto snpWeights = getWeights(opts, perms, phenotype, genotype);
 
