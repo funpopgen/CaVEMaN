@@ -305,8 +305,9 @@ void giveHelp(immutable string quitString)
 {
   import std.compiler;
 
+  static string[] dateString = __DATE__.split;
   writeln(quitString);
   writeln("Compiled with ", name, " ", version_major, ".", version_minor,
-	  " at ", __TIME__, ", ", __DATE__, ".");
+      " at ", __TIME__, ", ", dateString[1], " ", dateString[0], " ", dateString[2], ".");
   exit(0);
 }

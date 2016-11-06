@@ -25,7 +25,7 @@ static_test : ${DSOURCES} src/static_interpolate.o
 
 dmd : ${DSOURCES} src/interpolate.o
 	${DMD} -Jviews -O -release -noboundscheck -inline ${DSOURCES} src/interpolate.o -ofbin/CaVEMaN
-	rm src/*.o bin/*.o *.o
+	rm -f src/*.o bin/*.o *.o
 
 dmd_test : ${DSOURCES} src/interpolate.o
 	${DMD} -Jviews -debug -g -unittest -w ${DSOURCES} src/interpolate.o -ofunittest
@@ -34,7 +34,7 @@ dmd_test : ${DSOURCES} src/interpolate.o
 
 dmd_static : ${DSOURCES} src/static_interpolate.o
 	${DMD} -Jviews -O -release -noboundscheck -inline -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a ${DSOURCES} src/static_interpolate.o -ofbin/CaVEMaN
-	rm src/*.o bin/*.o *.o
+	rm -f src/*.o bin/*.o *.o
 
 dmd_static_test : ${DSOURCES} src/static_interpolate.o
 	${DMD} -Jviews -debug -g -unittest -w -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a ${DSOURCES} src/static_interpolate.o -ofunittest
