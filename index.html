@@ -46,7 +46,6 @@
 <li><a href="#creating-a-single-phenotype-bed-file-from-an-eqtl-list">Creating a single phenotype bed file from an eQTL list</a></li>
 <li><a href="#running-caveman">Running CaVEMaN</a></li>
 <li><a href="#extracting-peak-snps-and-estimating-causal-probabilities">Extracting peak SNPs and estimating causal probabilities</a></li>
-<li><a href="#producing-credible-sets-of-snps">Producing credible sets of SNPs</a></li>
 <li><a href="#building-from-source">Building from source</a></li>
 </ol>
 
@@ -148,16 +147,6 @@
 <p><img src="screenshots/CaVEMaN.best.png" alt="Screenshot, peak eQTL"></p>
 
 <p>The file contains the same fields as before, with the addition of the "Probability" column which gives the probability the SNP is causal.</p>
-
-<hr>
-
-<h2>
-<a id="producing-credible-sets-of-snps" class="anchor" href="#producing-credible-sets-of-snps" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Producing credible sets of SNPs</h2>
-
-<p>Another way to parse the CaVEMaN results involves producing credible sets of SNPs, together with a probability that they contain the causal variant (again, calibrated with the simulations). To extract the sets of SNPs, with probability &gt; 0.8 of containing the causal SNP, run the following command:</p>
-
-<pre><code>CaVEMaN --interval 0.8 --out results.credible.sets
-</code></pre>
 
 <hr>
 
