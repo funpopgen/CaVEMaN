@@ -29,7 +29,6 @@ import run_analysis : CaVEMaN;
 import calculation : genPerms;
 import correct : correct;
 import best : best;
-import interval : interval;
 
 version (STATICLINKED)
 {
@@ -71,15 +70,6 @@ else
     }
 
     best(opts);
-  }
-  else if (opts.interval.length != 0)
-  {
-    if (opts.verbose)
-    {
-      stderr.writeln("Producing credible interval sets.");
-    }
-
-    interval(opts.interval, opts.output, opts.verbose);
   }
   else
   {
@@ -183,26 +173,6 @@ unittest
 
   assert(toHexString(hash.finish) == "C530F1AC9E5D57C43F68FA64C7861780C2F742EE");
   stderr.writeln("Passed: extract best.");
-
-  // ./bin/CaVEMaN --interval testtemp,0.6
-
-  interval(["testtemp", "0.6"], "testtemp2", false);
-
-  hash.start;
-  put(hash, File("testtemp2").byChunk(1024));
-
-  // LDC and DMD deal with precision of floating point numbers slightly differently
-
-  version (LDC)
-  {
-    assert(toHexString(hash.finish) == "05F26D38092E53803D827427145CADEA3B025F41");
-  }
-
-  version (DigitalMars)
-  {
-    assert(toHexString(hash.finish) == "19E2745363F67F5DDFF93C70295F4530DB735E6F");
-  }
-  stderr.writeln("Passed: interval.");
 
   // ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz
 

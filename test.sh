@@ -21,13 +21,6 @@ else
     exit 1
 fi
 
-if [[ $( ./bin/CaVEMaN --interval testtemp,0.6 | sha1sum | awk {'print toupper($1)'}) == "05F26D38092E53803D827427145CADEA3B025F41" ]]; then
-    echo "Passed: interval."
-else
-    echo "Failed: interval."
-    exit 1
-fi
-
 rm -f testtemp
 
 if [[ $( ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz | sha1sum | awk {'print toupper($1)'}) == "FDED43C25211773C54FB6F854FFED8D0A0CFEA9C" ]]; then

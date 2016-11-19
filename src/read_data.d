@@ -58,6 +58,7 @@ double getDosage(char[] field, long loc, bool gt)
 {
   auto fieldSplit = field.split(':');
   enforce(fieldSplit.length > loc, new InputException(""));
+
   return gt ? cast(ubyte) fieldSplit[loc][0] + cast(ubyte) fieldSplit[loc][2] - 96
     : fieldSplit[loc].to!double;
 }

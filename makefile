@@ -1,43 +1,43 @@
 #Replace with location of locally installed gsl-2.1 versions if compiling static versions
 GSL = /home/andrew/gsl/
-DSOURCES = src/main.d src/arg_parse.d src/read_data.d src/calculation.d src/run_analysis.d src/correct.d src/best.d src/interval.d
+DSOURCES = src/main.d src/arg_parse.d src/read_data.d src/calculation.d src/run_analysis.d src/correct.d src/best.d
 LDC = ldc
 DMD = dmd
 
 ldc : ${DSOURCES} src/interpolate.o
-	${LDC} -Jviews -release -enable-inlining -O -w -oq ${DSOURCES} src/interpolate.o -of="bin/CaVEMaN"
+	${LDC} -release -enable-inlining -O -w -oq ${DSOURCES} src/interpolate.o -of="bin/CaVEMaN"
 	rm -f src/*.o bin/*.o *.o
 
 test : ${DSOURCES} src/interpolate.o
-	${LDC} -Jviews -d-debug -g -unittest -w ${DSOURCES} src/interpolate.o -of="unittest"
+	${LDC} -d-debug -g -unittest -w ${DSOURCES} src/interpolate.o -of="unittest"
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
 
 static : ${DSOURCES} src/static_interpolate.o
-	${LDC} -Jviews -release -enable-inlining -O -w -oq -d-version=STATICLINKED -I${GSL}/include ${DSOURCES} src/static_interpolate.o ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a -of="bin/CaVEMaN"
+	${LDC} -release -enable-inlining -O -w -oq -d-version=STATICLINKED -I${GSL}/include ${DSOURCES} src/static_interpolate.o ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a -of="bin/CaVEMaN"
 	rm -f *.o
 	rm -f src/*.o bin/*.o *.o
 
 static_test : ${DSOURCES} src/static_interpolate.o
-	${LDC} -Jviews -d-debug -g -unittest -w -d-version=STATICLINKED -I${GSL}/include ${DSOURCES} src/static_interpolate.o ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a -of="unittest"
+	${LDC} -d-debug -g -unittest -w -d-version=STATICLINKED -I${GSL}/include ${DSOURCES} src/static_interpolate.o ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a -of="unittest"
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
 
 dmd : ${DSOURCES} src/interpolate.o
-	${DMD} -Jviews -O -release -noboundscheck -inline ${DSOURCES} src/interpolate.o -ofbin/CaVEMaN
+	${DMD} -O -release -noboundscheck -inline ${DSOURCES} src/interpolate.o -ofbin/CaVEMaN
 	rm -f src/*.o bin/*.o *.o
 
 dmd_test : ${DSOURCES} src/interpolate.o
-	${DMD} -Jviews -debug -g -unittest -w ${DSOURCES} src/interpolate.o -ofunittest
+	${DMD} -debug -g -unittest -w ${DSOURCES} src/interpolate.o -ofunittest
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
 
 dmd_static : ${DSOURCES} src/static_interpolate.o
-	${DMD} -Jviews -O -release -noboundscheck -inline -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a ${DSOURCES} src/static_interpolate.o -ofbin/CaVEMaN
+	${DMD} -O -release -noboundscheck -inline -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a ${DSOURCES} src/static_interpolate.o -ofbin/CaVEMaN
 	rm -f src/*.o bin/*.o *.o
 
 dmd_static_test : ${DSOURCES} src/static_interpolate.o
-	${DMD} -Jviews -debug -g -unittest -w -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a ${DSOURCES} src/static_interpolate.o -ofunittest
+	${DMD} -debug -g -unittest -w -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a ${DSOURCES} src/static_interpolate.o -ofunittest
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
 

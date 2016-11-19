@@ -36,7 +36,6 @@ class Opts
   string correct = "";
   string cov = "";
 
-  string[] interval;
   string results;
 
   bool normal = false;
@@ -59,18 +58,17 @@ class Opts
 			  "bed", "Phenotype file [last argument].\n", &bed,
 			  "vcf", "Genotype file.\n", &vcf,
 			  "out|o", "Output file [stdout].\n", &output,
-			  "verbose", "Print additional information.", &verbose,
+			  "verbose", "Print additional information.\n", &verbose,
 			  "weights", "Specify CaVEMaN weightings.\n", &weights,
 			  "job-number", "Split the analysis into a number of smaller runs which can run in parallel on a cluster. This option specifies which of the sub-analyses should be run.\n", &jobNumber,
 			  "genes", "This specifies the number of genes to be analysed in each job.\n", &genes,
 			  "perm", "Number of bootstrap samplings, with an optional seed. One following number indicates the number of bootstraps, two comma separated numbers gives the number of bootstraps and the seed.\n", &perms,
 			  "window", "The size in base pairs of the cis window around the transcription start site of the gene [1,000,000].\n", &window,
-			  "spear", "Runs analysis based on non-parametric Spearman correlation test of association.\n", &spear,
+			  // "spear", "Runs analysis based on non-parametric Spearman correlation test of association.\n", &spear,
 			  "correct", "Specify eQTL file to output single genetic signal bed file.\n", &correct,
 			  "cov", "Optional covariates matrix if correcting phenotypes.\n", &cov,
 			  "normal", "Map single signal bed file phenotypes onto a normal distribution.\n", &normal,
 			  "best", "Produce probabilities for most significant association from results file.\n", &best,
-			  "interval", "Given a results file, produce the smallest set of SNPs with a given probability of containing the causal variant for each gene. Takes either 1 or 2 comma separated arguments, the name of the results file and optionally the required probability [0.9].\n", &interval,
 			  "nocheck", "Do not attempt to match genotype and phenotype IDs.\n", &nocheck,
 			  "noheader", "Suppress writing of header line.\n", &noheader,
 			  "version", "Display version information.\n", &version_,
@@ -106,7 +104,7 @@ OPTIONS:
       if (version_)
         giveHelp(versionString);
 
-      if (best == "" && interval.length == 0)
+      if (best == "")
       {
         auto checkTabix = executeShell("command -v tabix");
 
