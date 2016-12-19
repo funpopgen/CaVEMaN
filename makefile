@@ -1,5 +1,5 @@
 #Replace with location of locally installed gsl-2.1 versions if compiling static versions
-GSL = /home/andrew/gsl/
+GSL = $(shell pwd)/gsl
 DSOURCES = src/main.d src/arg_parse.d src/read_data.d src/calculation.d src/run_analysis.d src/correct.d src/best.d
 LDC = ldc
 DMD = dmd
@@ -41,8 +41,17 @@ dmd_static_test : ${DSOURCES} src/static_interpolate.o
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
 
-src/static_interpolate.o : src/interpolate.c
+src/static_interpolate.o : src/interpolate.c ${GSL}/lib/libgsl.a
 	cc -c src/interpolate.c -o src/static_interpolate.o -I${GSL}/include
+
+${GSL}/lib/libgsl.a :
+	rm -f gsl-2.3.tar.gz
+	wget ftp://ftp.gnu.org/gnu/gsl/gsl-2.3.tar.gz
+	tar -xf gsl-2.3.tar.gz
+	rm -f gsl-2.3.tar.gz
+	mkdir -p ${GSL}
+	cd gsl-2.3 && ./configure --prefix=${GSL} && make && make check && make install
+	rm -rf gsl-2.3
 
 .PHONY : test static ldc dmd ldc_test dmd_test static static_test dmd_static dmd_static_test clean install uninistall
 

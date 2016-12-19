@@ -6,7 +6,18 @@ authors "Andrew Brown"
 license "GPL-3.0"
 copyright "University of Geneva, 2016."
 targetPath "bin/"
-libs "gsl" "gslcblas"
-preGenerateCommands "gcc -c src/interpolate.c -o src/interpolate.o"
+targetType "executable"
 sourceFiles "src/interpolate.o"
-postBuildCommands "rm -f *.o src/*.o"
+postBuildCommands "rm -f src/interpolate.o"
+
+configuration "standard" {
+	      libs "gsl"
+	      preBuildCommands "gcc -c src/interpolate.c -o src/interpolate.o"
+}
+
+configuration "static" {
+	      versions "STATICLINKED"
+	      preBuildCommands "if [ ! -f gsl/lib/libgsl.a ]; then rm -f gsl-2.3.tar.gz; wget ftp://ftp.gnu.org/gnu/gsl/gsl-2.3.tar.gz; tar -xf gsl-2.3.tar.gz; rm -f gsl-2.3.tar.gz; mkdir -p gsl; cd gsl-2.3 && ./configure --prefix=$PWD/gsl && make && make check && make install; rm -rf gsl-2.3; fi" "gcc -c src/interpolate.c -o src/interpolate.o -Igsl/include"
+	      importPaths "gsl/include"
+	      sourceFiles "gsl/lib/libgsl.a" "gsl/lib/libgslcblas.a"
+}
