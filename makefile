@@ -53,7 +53,7 @@ ${GSL}/lib/libgsl.a :
 	cd gsl-2.3 && ./configure --prefix=${GSL} && make && make check && make install
 	rm -rf gsl-2.3
 
-views/commit : ${DSOURCES} src/interpolate.c
+views/commit : .git/HEAD .git/index
 	mkdir -p views
 	git rev-parse --short HEAD > views/commit
 
