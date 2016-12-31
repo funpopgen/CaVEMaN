@@ -43,7 +43,7 @@ The bed file should only contain genes for which an eQTL has been discovered, un
 4. Reference allele
 5. Alternate allele
 
-The \*--\*correct option can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.
+The `--correct` option can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.
 
 ***
 
@@ -65,7 +65,7 @@ If a set of important covariates are known (covariates.txt) were included in the
 
 To run CaVEMaN, all that is necessary is a bed file containing expression values (expression.bed) and a vcf file containing genotype values (genotype.vcf.gz, either the DS or GT field must be present).
 
-CaVEMaN has been designed so that the full analysis can be broken up into chunks, which can be submitted as cluster jobs separately. This requires two flags (if neither are present the whole analysis will be submitted), \*--\*genes specifies the number of genes to be analysed in each job, \*--\*job-number indexes the job. Therefore, if \*--\*genes 10 is specified, \*--\*job-number 1 will analyse genes 1-10 in the bed file, \*--\*job-number 2 will process genes 11-20 and so on.
+CaVEMaN has been designed so that the full analysis can be broken up into chunks, which can be submitted as cluster jobs separately. This requires two flags (if neither are present the whole analysis will be submitted), `--genes` specifies the number of genes to be analysed in each job, `--job-number` indexes the job. Therefore, if `--genes 10` is specified, `--job-number 1` will analyse genes 1-10 in the bed file, `--job-number 2` will process genes 11-20 and so on.
 
 To submit a job array, with a bed file of 9,995 genes, where each job analyses 50 genes (9,995 / 50 = 199.9, so we need to run 200 jobs to cover all genes), we would submit the following command to an LSF cluster:
 
@@ -73,7 +73,7 @@ To submit a job array, with a bed file of 9,995 genes, where each job analyses 5
          "CaVEMaN --bed expression.bed --vcf genotype.vcf.gz --genes 50 \
          --job-number \$LSB_JOBINDEX --out results\$LSB_JOBINDEX"
 
-In addition, the \*--\*perm option allows you to set the number of bootstrap samples used in the analysis.
+In addition, the `--perm` option allows you to set the number of bootstrap samples used in the analysis.
 
 This command will produce 200 results files, results1-results200. To concatenate them together run:
 
