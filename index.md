@@ -1,6 +1,6 @@
 # CaVEMaN Causal Variant Evidence Mapping using Non-parametric resampling
 
-Given the results of an eQTL mapping analysis, together with the expression, genotype and phenotype files, this software will estimate the probability that the peak eQTL is causal. For more details, please see the associated paper: http://biorxiv.org/content/early/2016/11/21/088872.
+Given the results of an eQTL mapping analysis, together with the expression, genotype and phenotype files, this software will estimate the probability that the peak eQTL is causal. For more details, please see the associated [paper](http://biorxiv.org/content/early/2016/11/21/088872).
 
 ***
 
@@ -19,11 +19,11 @@ Given the results of an eQTL mapping analysis, together with the expression, gen
 
 CaVEMaN binaries can be downloaded from here:
 
-https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0
+[https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0](https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0)
 
 The standard binary is called CaVEMaN. Use CaVEMaN_CentOS if there is an error referring to GLIBC.
 
-CaVEMaN requires tabix to be installed (https://github.com/samtools/htslib).
+CaVEMaN requires tabix to be installed: [https://github.com/samtools/htslib](https://github.com/samtools/htslib).
 
 If there are any issues, you can try [building from source](#building-from-source), or contact andrew.brown@unige.ch.
 
@@ -116,7 +116,7 @@ This should create a folder called CaVEMaN. Inside this folder is a file called 
 
 ### Download a D compiler
 
-Then, download a D compiler from either here: https://github.com/ldc-developers/ldc/releases or here: http://dlang.org/dmd-linux.html (ldc produces faster software, my experience is that dmd works better on older operating systems). Decompress the downloaded file, then edit either the third or fourth line of the makefile in the CaVEMaN folder so that it contains the full path to the relevant compiler, i.e. either:
+Then, download a D compiler from either here: [https://github.com/ldc-developers/ldc/releases](https://github.com/ldc-developers/ldc/releases) or here: [http://dlang.org/dmd-linux.html](http://dlang.org/dmd-linux.html) (ldc produces faster software, my experience is that dmd works better on older operating systems). Decompress the downloaded file, then edit either the third or fourth line of the makefile in the CaVEMaN folder so that it contains the full path to the relevant compiler, i.e. either:
 
 **DMD = /path/to/dmd2/linux/bin64/dmd**
 
@@ -132,7 +132,7 @@ First, check if a sufficiently recent version of the gsl is already installed by
 
 If this states that version 2.1 or more recent is installed, you can move on to building the software.
 
-Otherwise, download the gsl from here: http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz
+Otherwise, download the gsl from here: [http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz](http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz).
 
 Create a folder to install it to called gsl, then run the following commands:
 
