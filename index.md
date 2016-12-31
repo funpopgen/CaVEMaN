@@ -1,6 +1,6 @@
 # CaVEMaN Causal Variant Evidence Mapping using Non-parametric resampling
 
-Given the results of an eQTL mapping analysis, together with the expression, genotype and phenotype files, this software will estimate the probability that the peak eQTL is causal. For more details, please see the paper (soon).
+Given the results of an eQTL mapping analysis, together with the expression, genotype and phenotype files, this software will estimate the probability that the peak eQTL is causal. For more details, please see the associated paper: http://biorxiv.org/content/early/2016/11/21/088872.
 
 ***
 
