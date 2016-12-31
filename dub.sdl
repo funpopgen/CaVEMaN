@@ -7,10 +7,13 @@ license "GPL-3.0"
 targetType "executable"
 targetPath "bin/"
 targetName "CaVEMaN"
+mainSourceFile "src/main.d"
 sourceFiles "src/interpolate.o"
+preBuildCommands "git rev-parse --short HEAD > views/commit"
 postBuildCommands "rm -f src/interpolate.o"
 
 configuration "standard" {
+	libs "gsl"
 	preBuildCommands "gcc -c src/interpolate.c -o src/interpolate.o"
 }
 

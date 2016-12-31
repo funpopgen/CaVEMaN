@@ -108,26 +108,30 @@ unittest
   import std.digest.sha;
   import std.file : exists, remove;
   import std.range : put;
+  import std.uuid;
 
-  if ("testtemp".exists || "testtemp2".exists)
+  auto testFile1 = randomUUID.toString;
+  auto testFile2 = randomUUID.toString;
+
+  while (testFile1.exists || testFile2.exists)
   {
-    stderr.writeln("Running unittests would overwrite testtemp or testtemp2 file");
-    exit(0);
+    testFile1 = randomUUID.toString;
+    testFile2 = randomUUID.toString;
   }
 
   scope (exit)
   {
-    if ("testtemp".exists)
-      "testtemp".remove;
-    if ("testtemp2".exists)
-      "testtemp2".remove;
+    if (testFile1.exists)
+      testFile1.remove;
+    if (testFile2.exists)
+      testFile2.remove;
   }
 
   // ./bin/CaVEMaN --bed data/phenotype.bed --job-number 1 --genes 10 --vcf data/genotype.vcf.gz --perm 100000,4
 
   auto args = [
     "prog", "--bed", "data/phenotype.bed", "--job-number", "1", "--genes", "10",
-    "--vcf", "data/genotype.vcf.gz", "--perm", "100000,4", "--out", "testtemp"
+    "--vcf", "data/genotype.vcf.gz", "--perm", "100000,4", "--out", testFile1
   ];
 
   auto opts = new Opts(args.to!(string[]));
@@ -147,7 +151,7 @@ unittest
 
   SHA1 hash;
   hash.start;
-  put(hash, File("testtemp").byChunk(1024));
+  put(hash, File(testFile1).byChunk(1024));
 
   // LDC and DMD deal with precision of floating point numbers slightly differently
 
@@ -163,13 +167,13 @@ unittest
   stderr.writeln("Passed: CaVEMaN.");
 
   // ./bin/CaVEMaN --best testtemp
-  opts.best = "testtemp";
-  opts.output = "testtemp2";
+  opts.best = testFile1;
+  opts.output = testFile2;
 
   best(opts);
 
   hash.start;
-  put(hash, File("testtemp2").byChunk(1024));
+  put(hash, File(testFile2).byChunk(1024));
 
   assert(toHexString(hash.finish) == "C530F1AC9E5D57C43F68FA64C7861780C2F742EE");
   stderr.writeln("Passed: extract best.");
@@ -177,12 +181,12 @@ unittest
   // ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz
 
   opts.correct = "data/eQTL";
-  opts.output = "testtemp";
+  opts.output = testFile1;
 
   correct(opts);
 
   hash.start;
-  put(hash, File("testtemp").byChunk(1024));
+  put(hash, File(testFile1).byChunk(1024));
 
   assert(toHexString(hash.finish) == "FDED43C25211773C54FB6F854FFED8D0A0CFEA9C");
   stderr.writeln("Passed: correct phenotypes.");
@@ -192,7 +196,7 @@ unittest
   correct(opts);
 
   hash.start;
-  put(hash, File("testtemp").byChunk(1024));
+  put(hash, File(testFile1).byChunk(1024));
 
   assert(toHexString(hash.finish) == "BA58F5A4E604A5185270E074CC9BC754DD582C7E");
   stderr.writeln("Passed: correct with normalisation.");
@@ -206,7 +210,7 @@ unittest
   correct(opts);
 
   hash.start;
-  put(hash, File("testtemp").byChunk(1024));
+  put(hash, File(testFile1).byChunk(1024));
 
   assert(toHexString(hash.finish) == "798E1AD6FF67BCEE6C96B19E8297F107439E6609");
   stderr.writeln("Passed: correct with covariates.");
