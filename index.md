@@ -25,7 +25,7 @@ The standard binary is called CaVEMaN. Use CaVEMaN_CentOS if there is an error r
 
 CaVEMaN requires tabix to be installed: [https://github.com/samtools/htslib](https://github.com/samtools/htslib).
 
-If there are any issues, you can try [building from source](#building-from-source), or contact andrew.brown@unige.ch.
+If there are any issues, you can try [building from source](#building-from-source), or contact [andrew.brown@unige.ch](mailto:andrew.brown@unige.ch).
 
 ***
 
