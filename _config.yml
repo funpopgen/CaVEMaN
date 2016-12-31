@@ -1,0 +1,8 @@
+title: Caveman
+description: Causal Variant Evidence Mapping using Non-parametric resampling
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-dinky
+
+gems:
+  - jekyll-mentions
