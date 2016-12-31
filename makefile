@@ -54,7 +54,6 @@ ${GSL}/lib/libgsl.a :
 	rm -rf gsl-2.3
 
 views/commit : ${DSOURCES} src/interpolate.c
-	mkdir -p views
 	git rev-parse --short HEAD > views/commit
 
 .PHONY : test static ldc dmd ldc_test dmd_test static static_test dmd_static dmd_static_test clean install uninistall
