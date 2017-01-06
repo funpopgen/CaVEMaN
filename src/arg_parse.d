@@ -3,14 +3,13 @@ module arg_parse;
 import std.array : split;
 import core.stdc.stdlib : exit;
 import std.array : array;
-import std.algorithm : canFind, countUntil, filter, joiner, map, setDifference,
-  sort;
+import std.algorithm : canFind, countUntil, filter, map, setDifference, sort;
 import std.conv : to, ConvException;
 import std.exception : enforce;
 import std.file : exists;
 import std.process : executeShell, pipeShell, Redirect, wait;
 import std.range : indexed, iota;
-import std.stdio : File, writeln, stderr;
+import std.stdio : File, writefln, writeln, stderr;
 import std.string : chomp;
 
 class Opts
@@ -19,7 +18,6 @@ class Opts
 
   //write appropriate string and quit
   bool version_ = false;
-  bool spear = false;
   bool verbose = false;
   //phenotype and genotype ids are given
   bool noheader = false;
@@ -64,7 +62,6 @@ class Opts
 			  "genes", "This specifies the number of genes to be analysed in each job.\n", &genes,
 			  "perm", "Number of bootstrap samplings, with an optional seed. One following number indicates the number of bootstraps, two comma separated numbers gives the number of bootstraps and the seed.\n", &perms,
 			  "window", "The size in base pairs of the cis window around the transcription start site of the gene [1,000,000].\n", &window,
-			  // "spear", "Runs analysis based on non-parametric Spearman correlation test of association.\n", &spear,
 			  "correct", "Specify eQTL file to output single genetic signal bed file.\n", &correct,
 			  "cov", "Optional covariates matrix if correcting phenotypes.\n", &cov,
 			  "normal", "Map single signal bed file phenotypes onto a normal distribution.\n", &normal,
@@ -237,14 +234,15 @@ OPTIONS:
 
       if (verbose && genotypeLocations.length != genotypeIds.length)
       {
-        stderr.writeln(genotypeIds.indexed(setDifference(iota(genotypeIds.length),
-            genotypeLocations)).joiner(", "), " dropped from genotype file.");
+        stderr.writefln("%-(%s, %) dropped from genotype file",
+            genotypeIds.indexed(setDifference(iota(genotypeIds.length), genotypeLocations)));
       }
 
       if (verbose && phenotypeLocations.length != phenotypeIds.length)
       {
-        stderr.writeln(phenotypeIds.indexed(setDifference(iota(phenotypeIds.length),
-            phenotypeLocations.sort!())).joiner(", "), " dropped from phenotype file.");
+        stderr.writefln("%-(%s, %) dropped from phenotype file.",
+            phenotypeIds.indexed(setDifference(iota(phenotypeIds.length),
+              phenotypeLocations.sort!())));
       }
 
       if (phenotypeIds.indexed(phenotypeLocations)
@@ -270,11 +268,8 @@ OPTIONS:
           auto temp = genotypeIds.indexed(genotypeLocations).map!(a => covIds.countUntil(a)).array;
           if (temp.canFind(-1))
           {
-            auto missing = genotypeIds.indexed(genotypeLocations)
-              .filter!(a => !covIds.canFind(a)).joiner(", ");
-            stderr.writeln(
-                "Individuals in genotype and phenotype file, but not in covariate file. Missing individuals are ",
-                missing, ".");
+            stderr.writefln("Individuals in genotype and phenotype file, but not in covariate file. Missing individuals are %-(%s, %).",
+                genotypeIds.indexed(genotypeLocations).filter!(a => !covIds.canFind(a)));
             exit(1);
           }
 
@@ -282,8 +277,8 @@ OPTIONS:
 
           if (verbose && covLocations.length != covIds.length)
           {
-            stderr.writeln(covIds.indexed(setDifference(iota(covIds.length),
-                covLocations.sort!())).joiner(", "), " dropped from covariates file.");
+            stderr.writefln("%-(%s, %) dropped from covariates file.",
+                covIds.indexed(setDifference(iota(covIds.length), covLocations.sort!())));
           }
         }
         catch (Exception e)
@@ -306,6 +301,7 @@ void giveHelp(immutable string quitString)
 
   static string[] dateString = __DATE__.split;
   writeln(quitString, "-", commitString);
+
   writeln("Compiled with ", name, " ", version_major, ".", version_minor,
       " at ", __TIME__, ", ", dateString[1], " ", dateString[0], " ", dateString[2], ".");
   exit(0);

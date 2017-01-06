@@ -32,43 +32,6 @@ unittest
   assert(approxEqual(gsl_cdf_tdist_P(-1.6, 7), 0.07681585));
 }
 
-pure ref double[] rank(ref double[] rankArray)
-{
-  //ranks array, giving ties mean rank
-  import std.algorithm : makeIndex;
-
-  immutable size_t len = rankArray.length;
-  auto orderIndex = new size_t[](len);
-  makeIndex!("a < b")(rankArray, orderIndex);
-
-  double sumrank = 0.0;
-  size_t dupcount = 0;
-  double avgrank;
-
-  foreach (i, ref e; orderIndex)
-  {
-    sumrank += i;
-    dupcount++;
-    if (i == (len - 1) || rankArray[e] != rankArray[orderIndex[i + 1]])
-    {
-      avgrank = sumrank / dupcount + 1;
-      foreach (ref j; orderIndex[(i - dupcount + 1) .. (i + 1)])
-        rankArray[j] = avgrank;
-      sumrank = 0;
-      dupcount = 0;
-    }
-  }
-  return rankArray;
-}
-
-unittest
-{
-  //Simple test of ranking with ties
-  double[] vector = [10, 9, 2, 9, 3];
-
-  assert(rank(vector) == [5, 3.5, 1, 3.5, 2]);
-}
-
 pure void transform(ref double[] vector)
 {
   //transforms array so mean =0 sum of squares = 1
@@ -126,7 +89,7 @@ pure nothrow double[2] correlation(ref double[] vector1, ref double[] vector2)
 unittest
 {
   //Check correlation of phenotype with 3rd row genotype against estimates from R
-  double[2] corFromR = [-0.2863051, 0.4225695];
+  double[2] corFromR = [-0.3060383, 0.3897973];
 
   double[] genotype = [0.115, 2, 0.0964, 1, 1, 1, 0, 1, 0, 0.0563];
   double[] phen = [
@@ -134,8 +97,8 @@ unittest
     -1.25652676836, -0.787662180447, -2.05355237841, -0.245457234103, 1.14277217712
   ];
 
-  transform(rank(phen));
-  transform(rank(genotype));
+  transform(phen);
+  transform(genotype);
   double[2] cor = correlation(genotype, phen);
 
   assert(approxEqual(cor[0], corFromR[0]));

@@ -1,9 +1,10 @@
 import core.stdc.stdlib : exit;
-import std.array : array, join, split;
+import std.array : array, split;
 import std.algorithm : filter, reduce, max, map, countUntil, canFind;
 import std.exception : enforce;
+import std.format : format;
 import std.math : approxEqual;
-import std.stdio : File, stderr, stdout, write, writeln;
+import std.stdio : File, stderr, stdout, write, writef, writefln, writeln;
 import std.string : chomp;
 import std.range : enumerate, iota, indexed;
 import std.process : pipeShell, wait, Redirect;
@@ -117,7 +118,7 @@ string[][string] getEqtl(string inFile)
       auto lineSplit = line.split;
       enforce(lineSplit.length == 5, new InputException("Line doesn't have 5 columns."));
       auto gene = lineSplit[0].to!string;
-      auto snp = join(lineSplit[1 .. $].to!(string[]), "_");
+      auto snp = format("%-(%s_%)", lineSplit[1 .. $]);
       if (auto p = gene in eqtlList)
       {
         eqtlList[gene] ~= snp;
@@ -159,7 +160,7 @@ double[][string] getSnps(string[][string] eqtlList, string vcfFile,
         foreach (line; pipes.stdout.byLine)
         {
           auto splitLine = line.split;
-          if (join(splitLine[0 .. 4], "_") == f)
+          if (format("%-(%s_%)", splitLine[0 .. 4]) == f)
           {
             snps[f] = splitLine[4 .. $].indexed(locations).map!(a => getDosage(a, loc, gt)).array;
           }
@@ -242,8 +243,8 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
   double chisq;
 
   auto headerLineSplit = bedFile.readln.chomp.split;
-  outFile.writeln(join(headerLineSplit[0 .. 3], "\t"), "\t", headerLineSplit[3],
-      "\t", join(headerLineSplit[4 .. $].indexed(opts.phenotypeLocations), "\t"));
+  outFile.writefln("%-(%s\t%)\t%-(%s\t%)", headerLineSplit[0 .. 4],
+      headerLineSplit[4 .. $].indexed(opts.phenotypeLocations));
 
   foreach (bedLine; bedFile.byLine)
   {
@@ -252,18 +253,17 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
     {
       if (eqtlList[bedLineSplit[3]].length == 1 && baseCov == 0)
       {
-        outFile.write(join(bedLineSplit[0 .. 3], "\t"), "\t", bedLineSplit[3],
-            "_", eqtlList[bedLineSplit[3]][0], "\t");
+        outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], eqtlList[bedLineSplit[3]][0]);
         if (opts.normal)
         {
           auto values = bedLineSplit[4 .. $].indexed(opts.phenotypeLocations)
             .map!(a => to!double(a)).array;
           normalise(values);
-          outFile.writeln(join(values.to!(string[]), "\t"));
+          outFile.writefln("%-(%s\t%)", values);
         }
         else
         {
-          outFile.writeln(join(bedLineSplit[4 .. $].indexed(opts.phenotypeLocations), "\t"));
+          outFile.writefln("%-(%s\t%)", bedLineSplit[4 .. $].indexed(opts.phenotypeLocations));
         }
       }
       else
@@ -303,7 +303,7 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
 
           gsl_multifit_linear(covariates, outcome, coefficients, corrMat, &chisq, workSpace);
           gsl_multifit_linear_residuals(covariates, outcome, coefficients, residuals);
-          outFile.write(join(bedLineSplit[0 .. 3], "\t"), "\t", bedLineSplit[3], "_", e);
+          outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], e);
 
           auto values = gslToArray(residuals);
           if (opts.normal)
@@ -311,7 +311,7 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
             normalise(values);
           }
 
-          outFile.writeln("\t", join(values.to!(string[]), "\t"));
+          outFile.writefln("%-(%s\t%)", values);
         }
         gsl_matrix_free(covariates);
         gsl_matrix_free(corrMat);

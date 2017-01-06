@@ -6,9 +6,9 @@ import std.conv : ConvException, to;
 import std.math : fabs;
 import std.numeric : dotProduct;
 import std.range : chunks, enumerate, indexed, zip;
-import std.stdio : File, stderr, writeln;
+import std.stdio : File, stderr, writefln, writeln;
 
-import calculation : correlation, rank, Opts, transform, VarianceException;
+import calculation : correlation, Opts, transform, VarianceException;
 import read_data : Phenotype, Genotype, readGenotype, readWeights;
 
 version (unittest)
@@ -32,14 +32,11 @@ struct CorPlace
   size_t[] place;
 }
 
-double corCalc(ref double[] genChunk, ref double[] phenChunk, bool ttest)
+double corCalc(ref double[] genChunk, ref double[] phenChunk)
 {
   try
   {
-    if (ttest)
-      transform(genChunk);
-    else
-      transform(rank(genChunk));
+    transform(genChunk);
     return fabs(dotProduct(genChunk, phenChunk));
   }
   catch (VarianceException e)
@@ -74,10 +71,7 @@ auto getWeights(Opts opts, size_t[] permIndices, Phenotype phenotype, Genotype[]
   {
     try
     {
-      if (!opts.spear)
-        transform(perm);
-      else
-        transform(rank(perm));
+      transform(perm);
     }
     catch (VarianceException)
     {
@@ -93,7 +87,7 @@ auto getWeights(Opts opts, size_t[] permIndices, Phenotype phenotype, Genotype[]
   {
     auto permGenotype = genotype.values.indexed(permIndices).array;
     auto simplePerm = zip(chunks(permGenotype, nInd), chunks(perms, nInd)).map!(
-        e => corCalc(e[0], e[1], !opts.spear));
+        e => corCalc(e[0], e[1]));
     foreach (i, e; simplePerm.enumerate)
     {
       foreach (j; 0 .. 10)
@@ -144,28 +138,17 @@ auto getWeights(Opts opts, size_t[] permIndices, Phenotype phenotype, Genotype[]
 void writeResults(Opts opts, double[] snpWeights, Phenotype phenotype,
     Genotype[] genotypes, File outFile)
 {
-  import std.array : join;
-
-  string cor;
   immutable size_t nInd = phenotype.values.length;
   size_t countLine = 0;
 
-  if (!opts.spear)
-    transform(phenotype.values);
-  else
-    transform(rank(phenotype.values));
+  transform(phenotype.values);
 
   foreach (ref genotype; genotypes)
   {
-    if (!opts.spear)
-      transform(genotype.values);
-    else
-      transform(rank(genotype.values));
-
-    cor = correlation(genotype.values, phenotype.values)[].to!(string[]).join("\t");
-
-    outFile.writeln(phenotype.geneName, genotype.snpId, cor, "\t",
-        snpWeights[countLine].to!string);
+    transform(genotype.values);
+    auto cor = correlation(genotype.values, phenotype.values);
+    outFile.writefln("%s%s%s\t%s\t%s", phenotype.geneName, genotype.snpId,
+        cor[0], cor[1], snpWeights[countLine]);
 
     countLine++;
   }

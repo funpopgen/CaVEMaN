@@ -1,16 +1,17 @@
 module read_data;
 
 import std.algorithm : countUntil, map, max;
-import std.array : array, join, split;
+import std.array : array, split;
 import std.conv : to, ConvException;
 import std.exception : enforce;
+import std.format : format;
 import core.stdc.stdlib : exit;
 import std.range : indexed, iota;
 import std.stdio : File, readln, stdout, stderr, writeln;
 import std.process : pipeShell, Redirect, wait;
 
 import arg_parse : Opts;
-import calculation : transform, rank;
+import calculation : transform;
 
 class InputException : Exception
 {
@@ -47,7 +48,7 @@ struct Genotype
   this(char[] line, size_t[] indices, long loc, bool gt)
   {
     auto splitLine = line.split;
-    snpId = "\t" ~ splitLine[0 .. 4].to!(string[]).join("\t") ~ "\t";
+    snpId = format("\t%-(%s\t%)\t", splitLine[0 .. 4]);
     values = splitLine[4 .. $].indexed(indices).map!(a => getDosage(a, loc, gt)).array;
     if (countUntil!"a != b"(values, values[0]) == -1)
       throw new InputException("");
