@@ -1,14 +1,13 @@
+import arg_parse : Opts;
 import core.stdc.stdlib : exit;
+import read_data : InputException;
 import std.algorithm : map, max, min, reduce, sort;
 import std.array : array, split;
 import std.conv;
 import std.exception : enforce;
 import std.range : zip;
-import std.stdio : File, readln, writeln, stderr, stdout;
+import std.stdio : File, readln, stderr, stdout, writeln;
 import std.string : chomp;
-
-import arg_parse : Opts;
-import read_data : InputException;
 
 extern (C)
 {
@@ -35,7 +34,7 @@ struct Gene
   }
 }
 
-void best(Opts opts)
+void best(const Opts opts)
 {
   File inFile;
   File outFile;

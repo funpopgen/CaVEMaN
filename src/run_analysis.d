@@ -1,5 +1,7 @@
 module run_analysis;
 
+import calculation : correlation, Opts, transform, VarianceException;
+import read_data : Genotype, Phenotype, readGenotype, readWeights;
 import std.algorithm : map, sum;
 import std.array : array;
 import std.conv : ConvException, to;
@@ -7,16 +9,6 @@ import std.math : fabs;
 import std.numeric : dotProduct;
 import std.range : chunks, enumerate, indexed, zip;
 import std.stdio : File, stderr, writefln, writeln;
-
-import calculation : correlation, Opts, transform, VarianceException;
-import read_data : Phenotype, Genotype, readGenotype, readWeights;
-
-version (unittest)
-{
-  import std.digest.sha;
-  import std.range : put;
-  import std.file : exists, remove;
-}
 
 class InputException : Exception
 {
@@ -45,10 +37,9 @@ double corCalc(ref double[] genChunk, ref double[] phenChunk)
   }
 }
 
-void CaVEMaN(Phenotype phenotype, size_t[] perms, File outFile, Opts opts)
+void caveman(Phenotype phenotype, const size_t[] perms, File outFile, const Opts opts)
 {
-  auto genotype = readGenotype(opts, phenotype.chromosome, phenotype.location,
-      phenotype.values.length, phenotype.geneName);
+  auto genotype = readGenotype(opts, phenotype.chromosome, phenotype.location, phenotype.geneName);
 
   if (opts.verbose)
   {
@@ -60,7 +51,8 @@ void CaVEMaN(Phenotype phenotype, size_t[] perms, File outFile, Opts opts)
   writeResults(opts, snpWeights, phenotype, genotype, outFile);
 }
 
-auto getWeights(Opts opts, size_t[] permIndices, Phenotype phenotype, Genotype[] genotypes)
+auto getWeights(const Opts opts, const size_t[] permIndices,
+    Phenotype phenotype, Genotype[] genotypes)
 {
   immutable size_t nInd = phenotype.values.length;
   immutable nPerm = opts.perms[0];
@@ -128,28 +120,27 @@ auto getWeights(Opts opts, size_t[] permIndices, Phenotype phenotype, Genotype[]
     }
   }
 
-  auto total = snpWeights.sum;
+  immutable auto total = snpWeights.sum;
 
   snpWeights = snpWeights.map!(a => a / total).array;
 
   return snpWeights;
 }
 
-void writeResults(Opts opts, double[] snpWeights, Phenotype phenotype,
+void writeResults(const Opts opts, double[] snpWeights, Phenotype phenotype,
     Genotype[] genotypes, File outFile)
 {
   immutable size_t nInd = phenotype.values.length;
   size_t countLine = 0;
-
   transform(phenotype.values);
 
-  foreach (ref genotype; genotypes)
+  foreach (i, ref genotype; enumerate(genotypes))
   {
     transform(genotype.values);
     auto cor = correlation(genotype.values, phenotype.values);
-    outFile.writefln("%s%s%s\t%s\t%s", phenotype.geneName, genotype.snpId,
-        cor[0], cor[1], snpWeights[countLine]);
 
-    countLine++;
+    outFile.writefln("%s%s%s\t%s\t%s", phenotype.geneName, genotype.snpId,
+        cor[0], cor[1], snpWeights[i]);
+
   }
 }

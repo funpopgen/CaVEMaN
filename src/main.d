@@ -19,16 +19,15 @@
 
 */
 
+import arg_parse : Opts;
+import best : best;
+import calculation : genPerms;
+import correct : correct;
+import read_data : makeOut, Phenotype, readBed;
+import run_analysis : caveman;
 import std.conv : to;
 import std.range : enumerate;
 import std.stdio : File, stderr, writeln;
-
-import arg_parse : Opts;
-import read_data : Phenotype, readBed, makeOut;
-import run_analysis : CaVEMaN;
-import calculation : genPerms;
-import correct : correct;
-import best : best;
 
 version (STATICLINKED)
 {
@@ -51,7 +50,7 @@ else
 {
   pragma(msg, "CaVEMaN");
 
-  auto opts = new Opts(args.to!(string[]));
+  const auto opts = new Opts(args.to!(string[]));
 
   if (opts.correct != "")
   {
@@ -85,7 +84,7 @@ else
       stderr.writeln("Read ", phenotype.length, " phenotypes.");
     }
 
-    auto permutations = genPerms(opts, phenotype[0].values.length);
+    const auto permutations = genPerms(opts, phenotype[0].values.length);
 
     auto outFile = makeOut(opts);
 
@@ -96,19 +95,20 @@ else
         stderr.writeln("Analysing gene ", e[1].geneName, " (", e[0] + 1,
             " out of ", phenotype.length, ").");
       }
-      CaVEMaN(e[1], permutations, outFile, opts);
+      caveman(e[1], permutations, outFile, opts);
     }
   }
 }
 
-unittest
+@system unittest
 {
 
   import core.stdc.stdlib : exit;
-  import std.digest.sha;
+  import std.array : split;
+  import std.digest.sha : SHA1, toHexString;
   import std.file : exists, remove;
   import std.range : put;
-  import std.uuid;
+  import std.uuid : randomUUID;
 
   auto testFile1 = randomUUID.toString;
   auto testFile2 = randomUUID.toString;
@@ -129,12 +129,8 @@ unittest
 
   // ./bin/CaVEMaN --bed data/phenotype.bed --job-number 1 --genes 10 --vcf data/genotype.vcf.gz --perm 100000,4
 
-  auto args = [
-    "prog", "--bed", "data/phenotype.bed", "--job-number", "1", "--genes", "10",
-    "--vcf", "data/genotype.vcf.gz", "--perm", "100000,4", "--out", testFile1
-  ];
-
-  auto opts = new Opts(args.to!(string[]));
+  const auto opts = new Opts(("./bin/CaVEMaN --bed data/phenotype.bed --job-number 1 --genes 10 --vcf data/genotype.vcf.gz --perm 100000,4 --out " ~ testFile1)
+      .split);
 
   auto phenotype = readBed(opts);
 
@@ -144,7 +140,7 @@ unittest
 
   foreach (ref e; phenotype)
   {
-    CaVEMaN(e, permutations, outFile, opts);
+    caveman(e, permutations, outFile, opts);
   }
 
   outFile.close;
@@ -167,10 +163,10 @@ unittest
   stderr.writeln("Passed: CaVEMaN.");
 
   // ./bin/CaVEMaN --best testtemp
-  opts.best = testFile1;
-  opts.output = testFile2;
+  const auto optsBest = new Opts(("./bin/CaVEMaN --best " ~ testFile1 ~ " --out " ~ testFile2)
+      .split);
 
-  best(opts);
+  best(optsBest);
 
   hash.start;
   put(hash, File(testFile2).byChunk(1024));
@@ -180,10 +176,12 @@ unittest
 
   // ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz
 
-  opts.correct = "data/eQTL";
-  opts.output = testFile1;
+  const auto optsCorrect = new Opts(
+      (
+      "./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --out "
+      ~ testFile1).split);
 
-  correct(opts);
+  correct(optsCorrect);
 
   hash.start;
   put(hash, File(testFile1).byChunk(1024));
@@ -191,9 +189,11 @@ unittest
   assert(toHexString(hash.finish) == "FDED43C25211773C54FB6F854FFED8D0A0CFEA9C");
   stderr.writeln("Passed: correct phenotypes.");
 
-  opts.normal = true;
+  const auto optsNormal = new Opts((
+      "./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --normal --out " ~ testFile1)
+      .split);
 
-  correct(opts);
+  correct(optsNormal);
 
   hash.start;
   put(hash, File(testFile1).byChunk(1024));
@@ -203,11 +203,10 @@ unittest
 
   // ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates
 
-  opts.normal = false;
-  opts.cov = "data/covariates";
-  opts.covLocations = [1, 0, 2, 3, 4, 5, 6, 7, 9, 8];
+  const auto optsCovariates = new Opts(("./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates --out " ~ testFile1)
+      .split);
 
-  correct(opts);
+  correct(optsCovariates);
 
   hash.start;
   put(hash, File(testFile1).byChunk(1024));

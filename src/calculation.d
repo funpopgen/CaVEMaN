@@ -1,10 +1,8 @@
 module calculation;
 
+import arg_parse : Opts;
 import std.exception : enforce;
 import std.math : fabs, sqrt;
-import arg_parse : Opts;
-
-enum double EPSILON = 0.00000001; //comparison for X>=Y is done X > Y - epsilon 
 
 version (unittest)
 {
@@ -20,13 +18,13 @@ class VarianceException : Exception
   }
 }
 
-pure nothrow extern (C)
+@nogc pure nothrow extern (C)
 {
   //call GSL to calculate P values from T statistics
   double gsl_cdf_tdist_P(double x, double nu);
 }
 
-unittest
+@system unittest
 {
   // Checks GSL gives right p value for t statistic
   assert(approxEqual(gsl_cdf_tdist_P(-1.6, 7), 0.07681585));
@@ -56,7 +54,7 @@ pure void transform(ref double[] vector)
     e = (e - mean) / M2;
 }
 
-unittest
+@system unittest
 {
   //Checks that transform works on randomly generated vector
   import std.algorithm : reduce;
@@ -73,7 +71,7 @@ unittest
   assert(approxEqual(0.0.reduce!((a, b) => a + (b - mean) * (b - mean))(x), 1));
 }
 
-pure nothrow double[2] correlation(ref double[] vector1, ref double[] vector2)
+@nogc pure nothrow double[2] correlation(ref double[] vector1, ref double[] vector2)
 {
   //calculates correlation, t stat and p value for two arrays
   import std.numeric : dotProduct;
@@ -86,7 +84,7 @@ pure nothrow double[2] correlation(ref double[] vector1, ref double[] vector2)
   return results;
 }
 
-unittest
+@system unittest
 {
   //Check correlation of phenotype with 3rd row genotype against estimates from R
   double[2] corFromR = [-0.3060383, 0.3897973];
@@ -105,12 +103,12 @@ unittest
   assert(approxEqual(cor[1], corFromR[1]));
 }
 
-size_t[] genPerms(Opts opts, size_t nInd)
+size_t[] genPerms(const Opts opts, size_t nInd)
 {
-  import std.array : array;
   import std.algorithm : map;
-  import std.range : iota;
+  import std.array : array;
   import std.random : rndGen, uniform;
+  import std.range : iota;
 
   if (opts.perms.length > 1)
     rndGen.seed(opts.perms[1]);

@@ -1,18 +1,17 @@
+import arg_parse : Opts;
 import core.stdc.stdlib : exit;
+import read_data : getDosage, InputException;
+import std.algorithm : canFind, countUntil, filter, map, max, reduce;
 import std.array : array, split;
-import std.algorithm : filter, reduce, max, map, countUntil, canFind;
+import std.conv : to;
+import std.exception : enforce;
 import std.exception : enforce;
 import std.format : format;
 import std.math : approxEqual;
+import std.process : pipeShell, Redirect, wait;
+import std.range : enumerate, indexed, iota;
 import std.stdio : File, stderr, stdout, write, writef, writefln, writeln;
 import std.string : chomp;
-import std.range : enumerate, iota, indexed;
-import std.process : pipeShell, wait, Redirect;
-import std.conv : to;
-import std.exception : enforce;
-
-import arg_parse : Opts;
-import read_data : getDosage, InputException;
 
 extern (C)
 {
@@ -82,7 +81,7 @@ extern (C)
   double gsl_cdf_ugaussian_Pinv(double P);
 }
 
-void correct(Opts opts)
+void correct(const Opts opts)
 {
   auto eqtlList = getEqtl(opts.correct);
   if (opts.verbose)
@@ -139,7 +138,7 @@ string[][string] getEqtl(string inFile)
 }
 
 double[][string] getSnps(string[][string] eqtlList, string vcfFile,
-    size_t[] locations, long loc, bool gt)
+    const size_t[] locations, const long loc, const bool gt)
 {
   double[][string] snps;
 
@@ -177,7 +176,7 @@ double[][string] getSnps(string[][string] eqtlList, string vcfFile,
   return snps;
 }
 
-double[] getCov(Opts opts)
+double[] getCov(const Opts opts)
 {
   double[] cov;
   if (opts.cov == "")
@@ -210,7 +209,7 @@ double[] getCov(Opts opts)
   }
 }
 
-void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, double[] cov)
+void writeBed(const Opts opts, string[][string] eqtlList, double[][string] snps, double[] cov)
 {
 
   File outFile;
@@ -234,8 +233,8 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
     exit(1);
   }
 
-  auto nInd = opts.phenotypeLocations.length;
-  auto baseCov = cov.length / nInd;
+  immutable auto nInd = opts.phenotypeLocations.length;
+  immutable auto baseCov = cov.length / nInd;
   auto outcome = gsl_vector_alloc(nInd);
   auto maxEqtl = eqtlList.byKey.map!(a => eqtlList[a].length).reduce!(max) + baseCov;
   auto workSpace = gsl_multifit_linear_alloc(nInd, maxEqtl);
@@ -259,7 +258,7 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
           auto values = bedLineSplit[4 .. $].indexed(opts.phenotypeLocations)
             .map!(a => to!double(a)).array;
           normalise(values);
-          outFile.writefln("%-(%s\t%)", values);
+          outFile.writefln("%-(%g\t%)", values);
         }
         else
         {
@@ -311,7 +310,7 @@ void writeBed(Opts opts, string[][string] eqtlList, double[][string] snps, doubl
             normalise(values);
           }
 
-          outFile.writefln("%-(%s\t%)", values);
+          outFile.writefln("%-(%g\t%)", values);
         }
         gsl_matrix_free(covariates);
         gsl_matrix_free(corrMat);
@@ -372,7 +371,7 @@ gsl_vector* arrayToGsl(double[] array)
   return vec;
 }
 
-unittest
+@system unittest
 {
 
   double[] residuals = [1.0, 4, 4.5, 2, 1, 1, 1];
