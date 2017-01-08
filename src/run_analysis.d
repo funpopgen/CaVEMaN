@@ -73,9 +73,7 @@ auto getWeights(const Opts opts, const size_t[] permIndices,
 
   CorPlace[][] trackCor = new CorPlace[][](nPerm, 10);
 
-  size_t countLine = 0;
-
-  foreach (ref genotype; genotypes)
+  foreach (countLine, ref genotype; enumerate(genotypes))
   {
     auto permGenotype = genotype.values.indexed(permIndices).array;
     auto simplePerm = zip(chunks(permGenotype, nInd), chunks(perms, nInd)).map!(
@@ -97,7 +95,6 @@ auto getWeights(const Opts opts, const size_t[] permIndices,
         }
       }
     }
-    countLine++;
   }
 
   auto snpWeights = new double[](genotypes.length);
@@ -131,7 +128,6 @@ void writeResults(const Opts opts, double[] snpWeights, Phenotype phenotype,
     Genotype[] genotypes, File outFile)
 {
   immutable size_t nInd = phenotype.values.length;
-  size_t countLine = 0;
   transform(phenotype.values);
 
   foreach (i, ref genotype; enumerate(genotypes))

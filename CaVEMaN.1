@@ -28,7 +28,7 @@ CaVEMaN \- Causal Variant Evidence Mapping using Non-parametric resampling.
 
 .SH DESCRIPTION
 .PP
-CaVEMaN estimates the probability that a particular variant is the causal variant underlying a genetic association by observing the properties of the association under repeated resampling. The standard mode will run the CaVEMaN analysis on data in standard vcf and bed format, giving the CaVEMaN score for each variant in a cis window of the gene. When there are multiple eQTL for certain genes, the --correct flag will take the list of eQTL and the bed file and create a "single signal" expression bed file. This has a phenotype for each eQTL, regressing out all other eQTL, and can now be analysed using the standard pipeline. Once a results file has been created, a summary results file with the most significant association per gene and the probability that the specific variant is causal can be produced with the --best flag. Finally, the --interval flag will reduce a results file to a set of SNPs with probability x that they contain the causal variant.
+CaVEMaN estimates the probability that a particular variant is the causal variant underlying a genetic association by observing the properties of the association under repeated resampling. The standard mode will run the CaVEMaN analysis on data in standard vcf and bed format, giving the CaVEMaN score for each variant in a cis window of the gene. When there are multiple eQTL for certain genes, the --correct flag will take the list of eQTL and the bed file and create a "single signal" expression bed file. This has a phenotype for each eQTL, regressing out all other eQTL, and can now be analysed using the standard pipeline. Once a results file has been created, a summary results file with the most significant association per gene and the probability that the specific variant is causal can be produced with the --best flag. More information is available here: https://funpopgen.github.io/CaVEMaN/.
 
 .SH OPTIONS
 .TP 10
@@ -59,9 +59,6 @@ The size in base pairs of the cis window around the transcription start site of 
 .BI "--perm " INT(,INT)
 Calculated permuted p values, one following number indicates the number of permutations, two comma separated numbers gives the number of permutations and the seed.
 .TP
-.B --spear
-Runs analysis based on non-parametric Spearman correlation test of association.
-.TP
 .BI "--correct " CHAR
 Specify eQTL file to output single genetic signal bed file..TP
 .TP
@@ -70,9 +67,6 @@ Map single signal bed file phenotypes onto a normal distribution.
 .TP
 .BI "--best " CHAR
 Produce probabilities for most significant association from results file.
-.TP
-.BI "--interval " CHAR(,DOUBLE)
-Given a results file, produce the smallest set of SNPs with a given probability of containing the causal variant for each gene. Takes either 1 or 2 comma separated arguments, the name of the results file and optionally the required probability [0.9]
 .TP
 .B --noheader
 Suppress writing of header line.
@@ -95,4 +89,4 @@ The --best and --interval flags require only a results file, in the format descr
 .HP
 .SS OUTPUT FILE FORMAT
 .TP
-Standard run and the --interval flag produce an output file with the following fields: Chromosome, Location (bp), Reference and Alternate alleles of the SNP, followed by the Correlation and P value for association and the CaVEMaN weighting. With the --best flag an extra column is added with the probability of being the causal variant. Running with the --correct flag produces a bed file for further analysis.
+Standard run produces an output file with the following fields: Chromosome, Location (bp), Reference and Alternate alleles of the SNP, followed by the Correlation and P value for association and the CaVEMaN weighting. With the --best flag an extra column is added with the probability of being the causal variant. Running with the --correct flag produces a bed file for further analysis.
