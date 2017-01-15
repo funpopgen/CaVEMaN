@@ -48,7 +48,7 @@ void caveman(Phenotype phenotype, const size_t[] perms, File outFile, const Opts
 
   auto snpWeights = getWeights(opts, perms, phenotype, genotype);
 
-  writeResults(opts, snpWeights, phenotype, genotype, outFile);
+  writeResults(snpWeights, phenotype, genotype, outFile);
 }
 
 auto getWeights(const Opts opts, const size_t[] permIndices,
@@ -124,10 +124,9 @@ auto getWeights(const Opts opts, const size_t[] permIndices,
   return snpWeights;
 }
 
-void writeResults(const Opts opts, double[] snpWeights, Phenotype phenotype,
+void writeResults(double[] snpWeights, Phenotype phenotype,
     Genotype[] genotypes, File outFile)
 {
-  immutable size_t nInd = phenotype.values.length;
   transform(phenotype.values);
 
   foreach (i, ref genotype; enumerate(genotypes))

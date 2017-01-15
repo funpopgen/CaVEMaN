@@ -134,7 +134,7 @@ else
 
   auto phenotype = readBed(opts);
 
-  auto permutations = genPerms(opts, phenotype[0].values.length);
+  const auto permutations = genPerms(opts, phenotype[0].values.length);
 
   auto outFile = makeOut(opts);
 

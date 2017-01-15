@@ -112,11 +112,17 @@ auto readBed(const Opts opts)
     }
     catch (InputException e)
     {
-      stderr.writeln("Gene ", line.split[3], " is constant. Nothing to analyse.");
+      if (opts.verbose)
+      {
+	stderr.writeln("Gene ", line.split[3], " is constant. Nothing to analyse.");
+      }
     }
     catch (Exception e)
     {
-      stderr.writeln("Failed to read gene ", line.split[3], ".");
+      if (opts.verbose)
+      {
+	stderr.writeln("Failed to read gene ", line.split[3], ".");
+      }
     }
     geneCount--;
   }
