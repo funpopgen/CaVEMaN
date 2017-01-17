@@ -242,7 +242,7 @@ OPTIONS:
       {
         stderr.writefln("%-(%s, %) dropped from phenotype file.",
             phenotypeIds.indexed(setDifference(iota(phenotypeIds.length),
-              phenotypeLocations.sort!())));
+              phenotypeLocations.dup.sort!())));
       }
 
       if (phenotypeIds.indexed(phenotypeLocations)
@@ -278,7 +278,7 @@ OPTIONS:
           if (verbose && covLocations.length != covIds.length)
           {
             stderr.writefln("%-(%s, %) dropped from covariates file.",
-                covIds.indexed(setDifference(iota(covIds.length), covLocations.sort!())));
+                covIds.indexed(setDifference(iota(covIds.length), covLocations.dup.sort!())));
           }
         }
         catch (Exception e)
