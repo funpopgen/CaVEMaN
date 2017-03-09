@@ -3,7 +3,7 @@ import core.stdc.stdlib : exit;
 import read_data : InputException;
 import std.algorithm : map, max, min, reduce, sort;
 import std.array : array, split;
-import std.conv;
+import std.conv : to;
 import std.exception : enforce;
 import std.range : zip;
 import std.stdio : File, readln, stderr, stdout, writeln;
@@ -93,8 +93,6 @@ void best(const Opts opts)
     }
 
   }
-
-  import std.range : iota;
 
   double[] weights_x;
   double[] weights_y;

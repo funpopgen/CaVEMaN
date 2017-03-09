@@ -23,7 +23,7 @@ import arg_parse : Opts;
 import best : best;
 import calculation : genPerms;
 import correct : correct;
-import read_data : makeOut, Phenotype, readBed;
+import read_data : makeOut, readBed;
 import run_analysis : caveman;
 import std.conv : to;
 import std.range : enumerate;

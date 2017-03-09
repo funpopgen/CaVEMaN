@@ -4,7 +4,7 @@ import calculation : correlation, Opts, transform, VarianceException;
 import read_data : Genotype, Phenotype, readGenotype, readWeights;
 import std.algorithm : map, sum;
 import std.array : array;
-import std.conv : ConvException, to;
+import std.conv : to;
 import std.math : fabs;
 import std.numeric : dotProduct;
 import std.range : chunks, enumerate, indexed, zip;

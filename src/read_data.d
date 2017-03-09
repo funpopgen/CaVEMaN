@@ -1,11 +1,10 @@
 module read_data;
 
 import arg_parse : Opts;
-import calculation : transform;
 import core.stdc.stdlib : exit;
 import std.algorithm : countUntil, map, max;
 import std.array : array, split;
-import std.conv : ConvException, to;
+import std.conv : to;
 import std.exception : enforce;
 import std.format : format;
 import std.process : pipeShell, Redirect, wait;

@@ -1,7 +1,7 @@
 import arg_parse : Opts;
 import core.stdc.stdlib : exit;
 import read_data : getDosage, InputException;
-import std.algorithm : canFind, countUntil, filter, map, max, reduce;
+import std.algorithm : map, max, reduce;
 import std.array : array, split;
 import std.conv : to;
 import std.exception : enforce;
@@ -326,7 +326,6 @@ void writeBed(const Opts opts, string[][string] eqtlList, double[][string] snps,
 void normalise(ref double[] residuals)
 {
   import std.algorithm : makeIndex;
-  import std.mathspecial : normalDistributionInverse;
 
   size_t[] orderBuffer = new size_t[](residuals.length);
 

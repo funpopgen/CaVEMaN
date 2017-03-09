@@ -4,6 +4,11 @@ import arg_parse : Opts;
 import std.exception : enforce;
 import std.math : fabs, sqrt;
 
+version (unittest)
+{
+  import std.math : approxEqual;
+}
+
 class VarianceException : Exception
 {
   //thrown if variable is constant
