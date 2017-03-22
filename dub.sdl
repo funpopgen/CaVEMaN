@@ -22,5 +22,5 @@ configuration "static" {
 	sourceFiles "gsl/lib/libgsl.a" "gsl/lib/libgslcblas.a"
 	versions "STATICLINKED"
 	importPaths "gsl/include"
-	preBuildCommands "if [ ! -f gsl/lib/libgsl.a ]; then rm -f gsl-2.3.tar.gz; wget ftp://ftp.gnu.org/gnu/gsl/gsl-2.3.tar.gz; tar -xf gsl-2.3.tar.gz; rm -f gsl-2.3.tar.gz; mkdir -p gsl; cd gsl-2.3 && ./configure --prefix=$PWD/gsl && make && make check && make install; rm -rf gsl-2.3; fi" "gcc -c src/interpolate.c -o src/interpolate.o -Igsl/include"
+	preBuildCommands "if [ ! -f gsl/lib/libgsl.a ]; then rm -f gsl-2.3.tar.gz && wget ftp://ftp.gnu.org/gnu/gsl/gsl-2.3.tar.gz && tar -xf gsl-2.3.tar.gz && rm -f gsl-2.3.tar.gz && mkdir -p gsl && cd gsl-2.3 && ./configure --prefix=$PWD/gsl && make && make check && make install && rm -rf gsl-2.3; fi" "gcc -c src/interpolate.c -o src/interpolate.o -Igsl/include"
 }
