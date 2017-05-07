@@ -142,10 +142,6 @@ Create a folder to install it to called gsl, then run the following commands:
     make
     make install
 
-Then, edit the second line of the makefile in the CaVEMaN folder to give it the full path to the gsl folder you created, i.e.
-
-**GSL = /path/to/gsl**
-
 ### Building the software
 
 Now to compile, run the commands from the relevant cell in the table (which depend on which compiler you downloaded and whether the gsl was pre-installed).
@@ -153,7 +149,7 @@ Now to compile, run the commands from the relevant cell in the table (which depe
 |      | ldc | dmd |
 |----- |-----|-----|
 |**GSL already installed** | make test && make | make dmd_test && make dmd |
-|**GSL installed by  you** | make static_test && make static | make dmd_static_test && make dmd_static |
+|**GSL installed by  you** | make static_test GSL=/path/to/gsl && make static GSL=/path/to/gsl | make dmd_static_test GSL=/path/to/gsl && make dmd_static GSL=/path/to/gsl |
 
 Now the CaVEMaN binary should be within the bin folder in the CaVEMaN directory, running
 
