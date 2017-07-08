@@ -43,7 +43,7 @@ The bed file should only contain genes for which an eQTL has been discovered, un
 4. Reference allele
 5. Alternate allele
 
-The `--correct` option can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.
+The `--single-signal` and `simulate` options can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.
 
 ***
 
@@ -51,12 +51,12 @@ The `--correct` option can also take a covariates file. This should be tab separ
 
 CaVEMaN is based on the assumption that there is only one eQTL signal in the cis window. In cases where multiple eQTLs are known for a given gene, we can produce "single signal" phenotypes by regressing out all but one eQTL at a time (and optionally covariates as well). Given an expression bed file (expression.bed), a genotype file (genotype.vcf.gz) and a list of eQTL (eqtl.list), we produce the file with the following command:
 
-     CaVEMaN --correct eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
+     CaVEMaN --single-signal --eqtl eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
          --out corrected.expression.bed
 
 If a set of important covariates are known (covariates.txt) were included in the eQTL mapping, these can be considered as well:
 
-     CaVEMaN --correct eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
+     CaVEMaN --single-signal --eqtl eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
          --out corrected.expression.bed --cov covariates.txt
 
 ***
@@ -99,6 +99,24 @@ The file results.best should look like this:
 ![Screenshot, peak eQTL](screenshots/CaVEMaN.best.png)
 
 The file contains the same fields as before, with the addition of the "Probability" column which gives the probability the SNP is causal.
+
+***
+
+## Running simulations to estimate parameters
+
+THIS IS WORK IN PROGRESS AND HASN'T BEEN FULLY TESTED.
+CaVEMaN uses parameters estimated from eQTL data, and we have seen these parameters to be consistent over a range of sample sizes, genotype structure, sequencing pipelines and tissue types. However, it is possible that there will be cases in the future for which these parameters are not appropriate, for example, with much larger datasets than currently available. In this case new simulations can be run to estimate parameters suitable for the analysis.
+
+Firstly, given a list of eQTLs, a vcf file and a bed file, run the following command to generate a dataset of simulated expression with known genetic signals that are matched to real eQTLs:
+
+    CaVEMaN --simulate --eqtl eqtl.list --bed expression.bed --vcf genotype.vcf.gz \
+         --out simulated.expression.bed
+
+Then, run a full CaVEMaN analysis on this file as described in the previous section, producing a results file called results.all. To estimate two parameter files (rank and weights) based on these results, run:
+
+    CaVEMaN --results results.all --rank new.rank --weights new.weights
+
+Now, to use these new parameters when running CaVEMaN, specify these files using the same `--rank` and `--weights` flags.
 
 ***
 
