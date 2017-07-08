@@ -105,6 +105,7 @@ The file contains the same fields as before, with the addition of the "Probabili
 ## Running simulations to estimate parameters
 
 THIS IS WORK IN PROGRESS AND HASN'T BEEN FULLY TESTED.
+
 CaVEMaN uses parameters estimated from eQTL data, and we have seen these parameters to be consistent over a range of sample sizes, genotype structure, sequencing pipelines and tissue types. However, it is possible that there will be cases in the future for which these parameters are not appropriate, for example, with much larger datasets than currently available. In this case new simulations can be run to estimate parameters suitable for the analysis.
 
 Firstly, given a list of eQTLs, a vcf file and a bed file, run the following command to generate a dataset of simulated expression with known genetic signals that are matched to real eQTLs:
@@ -116,7 +117,13 @@ Then, run a full CaVEMaN analysis on this file as described in the previous sect
 
     CaVEMaN --results results.all --rank new.rank --weights new.weights
 
-Now, to use these new parameters when running CaVEMaN, specify these files using the same `--rank` and `--weights` flags.
+Now, to use these new parameters when running CaVEMaN, firstly run the CaVEMaN analysis specifying the `--rank` flag, i.e.:
+
+    CaVEMaN --bed expression.bed --vcf genotype.vcf.gz --rank new.rank --out results 
+
+Then, when extracting causal probabilities, pass the `--weights` flag:
+
+    CaVEMaN --best results.all --weights new.weights --out results.best
 
 ***
 
