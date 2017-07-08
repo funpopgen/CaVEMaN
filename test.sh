@@ -23,21 +23,21 @@ fi
 
 rm -f testtemp
 
-if [[ $( ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz | sha1sum | awk {'print toupper($1)'}) == "FDED43C25211773C54FB6F854FFED8D0A0CFEA9C" ]]; then
+if [[ $( ./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz | sha1sum | awk {'print toupper($1)'}) == "FDED43C25211773C54FB6F854FFED8D0A0CFEA9C" ]]; then
     echo "Passed: correct phenotypes."
 else
     echo "Failed: correct phenotypes."
     exit 1
 fi
 
-if [[ $( ./bin/CaVEMaN --normal --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz | sha1sum | awk {'print toupper($1)'}) == "BA58F5A4E604A5185270E074CC9BC754DD582C7E" ]]; then
+if [[ $( ./bin/CaVEMaN --normal --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz | sha1sum | awk {'print toupper($1)'}) == "BA58F5A4E604A5185270E074CC9BC754DD582C7E" ]]; then
     echo "Passed: correct with normalisation."
 else
     echo "Failed: correct with normalisation."
     exit 1
 fi
 
-if [[ $( ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates | sha1sum | awk {'print toupper($1)'}) == "798E1AD6FF67BCEE6C96B19E8297F107439E6609" ]]; then
+if [[ $( ./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates | sha1sum | awk {'print toupper($1)'}) == "798E1AD6FF67BCEE6C96B19E8297F107439E6609" ]]; then
     echo "Passed: correct with covariates."
 else
     echo "Failed: correct with covariates."
