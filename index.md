@@ -116,7 +116,7 @@ Firstly, given a list of eQTLs, a vcf file and a bed file, run the following com
 
 Then, run a full CaVEMaN analysis on this file as described in the previous section, producing a results file called results.all. To estimate two parameter files (rank and weights) based on these results, run:
 
-    CaVEMaN --results results.all --rank new.rank --weights new.weights
+    CaVEMaN --get-weights --results results.all --rank new.rank --weights new.weights
 
 Now, to use these new parameters when running CaVEMaN, firstly run the CaVEMaN analysis specifying the `--rank` flag, i.e.:
 
