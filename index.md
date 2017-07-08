@@ -11,7 +11,8 @@ Given the results of an eQTL mapping analysis, together with the expression, gen
 3. [Creating a single phenotype bed file from an eQTL list](#creating-a-single-phenotype-bed-file-from-an-eqtl-list)
 4. [Running CaVEMaN](#running-caveman)
 5. [Extracting peak SNPs and estimating causal probabilities](#extracting-peak-snps-and-estimating-causal-probabilities)
-6. [Building from source](#building-from-source)
+6. [Running simulations to estimate parameters](#running-simulations-to-estimate-parameters)
+7. [Building from source](#building-from-source)
 
 ***
 
