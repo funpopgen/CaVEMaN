@@ -25,6 +25,7 @@ import calculation : genPerms;
 import correct : correct;
 import read_data : makeOut, readBed;
 import run_analysis : caveman;
+import weights : getWeights;
 import std.conv : to;
 import std.range : enumerate;
 import std.stdio : File, stderr, writeln;
@@ -52,14 +53,27 @@ else
 
   const auto opts = new Opts(args.to!(string[]));
 
-  if (opts.correct != "")
+  if (opts.singleSignal || opts.simulate)
   {
-    if (opts.verbose)
+    if (opts.verbose && opts.singleSignal)
     {
-      stderr.writeln("Producing bed file corrected for multiple eQTL.");
+      stderr.writeln("Producing bed file corrected for multiple eQTLs.");
+    }
+    if (opts.verbose && opts.simulate)
+    {
+      stderr.writeln("Producing simulated dataset with properties matched on eQTLs.");
     }
 
     correct(opts);
+  }
+  else if (opts.getWeights)
+  {
+    if (opts.verbose)
+    {
+      stderr.writeln("Estimating parameters based on results of simulation.");
+    }
+
+    getWeights(opts);
   }
   else if (opts.best != "")
   {
@@ -174,11 +188,11 @@ else
   assert(toHexString(hash.finish) == "C530F1AC9E5D57C43F68FA64C7861780C2F742EE");
   stderr.writeln("Passed: extract best.");
 
-  // ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz
+  // ./bin/CaVEMaN --single-signal data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz
 
   const auto optsCorrect = new Opts(
       (
-      "./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --out "
+      "./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --out "
       ~ testFile1).split);
 
   correct(optsCorrect);
@@ -190,7 +204,7 @@ else
   stderr.writeln("Passed: correct phenotypes.");
 
   const auto optsNormal = new Opts((
-      "./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --normal --out " ~ testFile1)
+      "./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --normal --out " ~ testFile1)
       .split);
 
   correct(optsNormal);
@@ -201,9 +215,9 @@ else
   assert(toHexString(hash.finish) == "BA58F5A4E604A5185270E074CC9BC754DD582C7E");
   stderr.writeln("Passed: correct with normalisation.");
 
-  // ./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates
+  // ./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates
 
-  const auto optsCovariates = new Opts(("./bin/CaVEMaN --correct data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates --out " ~ testFile1)
+  const auto optsCovariates = new Opts(("./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --cov data/covariates --out " ~ testFile1)
       .split);
 
   correct(optsCovariates);

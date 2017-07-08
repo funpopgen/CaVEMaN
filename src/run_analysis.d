@@ -1,7 +1,7 @@
 module run_analysis;
 
 import calculation : correlation, Opts, transform, VarianceException;
-import read_data : Genotype, Phenotype, readGenotype, readWeights;
+import read_data : Genotype, Phenotype, readGenotype, readRanks;
 import std.algorithm : map, sum;
 import std.array : array;
 import std.conv : to;
@@ -101,7 +101,7 @@ auto getWeights(const Opts opts, const size_t[] permIndices,
 
   snpWeights[] = 0;
 
-  double[] weights = readWeights(opts);
+  double[] ranks = readRanks(opts);
 
   foreach (ref e; trackCor)
   {
@@ -111,7 +111,7 @@ auto getWeights(const Opts opts, const size_t[] permIndices,
       {
         foreach (g; f.place)
         {
-          snpWeights[g] += weights[j];
+          snpWeights[g] += ranks[j];
         }
       }
     }
@@ -132,6 +132,7 @@ void writeResults(double[] snpWeights, Phenotype phenotype,
   foreach (i, ref genotype; enumerate(genotypes))
   {
     transform(genotype.values);
+
     auto cor = correlation(genotype.values, phenotype.values);
 
     outFile.writefln("%s%s%s\t%s\t%s", phenotype.geneName, genotype.snpId,

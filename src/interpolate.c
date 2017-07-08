@@ -1,3 +1,5 @@
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_rng.h>
 #include <gsl/gsl_spline.h>
 #include <stdlib.h>
 
@@ -34,4 +36,26 @@ double interpolateSingleValue(double* weights_x, double* weights_y, size_t N,
   gsl_interp_accel_free(acc);
 
   return threshold;
+}
+
+void generateRandomValues(double* randomSample, size_t nInd, double sigma,
+                          size_t seed)
+{
+  const gsl_rng_type* T;
+  gsl_rng* r;
+
+  gsl_rng_env_setup();
+
+  T = gsl_rng_default;
+  r = gsl_rng_alloc(T);
+
+  gsl_rng_set(r, seed);
+
+  int i;
+  for (i = 0; i < nInd; i++)
+  {
+    randomSample[i] = gsl_ran_gaussian(r, sigma);
+  }
+
+  gsl_rng_free(r);
 }

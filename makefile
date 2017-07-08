@@ -1,6 +1,6 @@
 #Replace with location of locally installed gsl-2.1 versions if compiling static versions
 GSL = $(shell pwd)/gsl
-DSOURCES = src/main.d src/arg_parse.d src/read_data.d src/calculation.d src/run_analysis.d src/correct.d src/best.d
+DSOURCES = src/main.d src/arg_parse.d src/read_data.d src/calculation.d src/run_analysis.d src/correct.d src/best.d src/weights.d
 LDC = ldc
 DMD = dmd
 

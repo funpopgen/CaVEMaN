@@ -6,7 +6,8 @@ import std.array : array;
 import std.array : split;
 import std.conv : to;
 import std.file : exists;
-import std.getopt : arraySep, defaultGetoptFormatter, defaultGetoptPrinter, getopt, GetOptException;
+import std.getopt : arraySep, defaultGetoptFormatter, defaultGetoptPrinter,
+  getopt, GetOptException;
 import std.process : executeShell, pipeShell, Redirect, wait;
 import std.range : indexed, iota;
 import std.stdio : File, stderr, writefln, writeln;
@@ -30,10 +31,14 @@ class Opts
   string vcf = "";
   string bed = "";
   string output = "";
-  string correct = "";
+  bool singleSignal = false;
+  bool simulate = false;
+  bool getWeights = false;
+  string eqtl = "";
   string cov = "";
 
   string results;
+  string rank;
 
   bool normal = false;
   string best = "";
@@ -52,22 +57,47 @@ class Opts
     // dfmt off
     arraySep = ",";
     auto options = getopt(args,
-			  "bed", "Phenotype file [last argument].\n", &bed,
-			  "vcf", "Genotype file.\n", &vcf,
-			  "out|o", "Output file [stdout].\n", &output,
-			  "verbose", "Print additional information.\n", &verbose,
-			  "weights", "Specify CaVEMaN weightings.\n", &weights,
-			  "job-number", "Split the analysis into a number of smaller runs which can run in parallel on a cluster. This option specifies which of the sub-analyses should be run.\n", &jobNumber,
-			  "genes", "This specifies the number of genes to be analysed in each job.\n", &genes,
-			  "perm", "Number of bootstrap samplings, with an optional seed. One following number indicates the number of bootstraps, two comma separated numbers gives the number of bootstraps and the seed.\n", &perms,
-			  "window", "The size in base pairs of the cis window around the transcription start site of the gene [1,000,000].\n", &window,
-			  "correct", "Specify eQTL file to output single genetic signal bed file.\n", &correct,
-			  "cov", "Optional covariates matrix if correcting phenotypes.\n", &cov,
-			  "normal", "Map single signal bed file phenotypes onto a normal distribution.\n", &normal,
-			  "best", "Produce probabilities for most significant association from results file.\n", &best,
-			  "nocheck", "Do not attempt to match genotype and phenotype IDs.\n", &nocheck,
-			  "noheader", "Suppress writing of header line.\n", &noheader,
-			  "version", "Display version information.\n", &version_,
+			  "bed", "Phenotype file [last argument].", &bed,
+			  "vcf", "Genotype file.", &vcf,
+			  "out|o", "Output file [stdout].", &output,
+			  "normal", "Map phenotypes onto a normal distribution.", &normal,
+			  "nocheck", "Do not attempt to match genotype and phenotype IDs.", &nocheck,
+			  "verbose", "Print additional information.
+
+
+MAPPING CAUSAL VARIANTS:
+", &verbose,
+			  "job-number", "Split the analysis into a number of smaller runs which can run in parallel on a cluster. This option specifies which of the sub-analyses should be run.", &jobNumber,
+			  "genes", "This specifies the number of genes to be analysed in each job.", &genes,
+			  "perm", "Number of bootstrap samplings, with an optional seed. One following number indicates the number of bootstraps, two comma separated numbers gives the number of bootstraps and the seed.", &perms,
+			  "window", "The size in base pairs of the cis window around the transcription start site of the gene [1,000,000].", &window,
+			  "noheader", "Suppress writing of header line.
+
+
+PRODUCING SINGLE SIGNAL OR SIMULATED DATASETS:
+", &noheader,
+			  "single-signal", "Produce expression data which preserves only one eQTL effect on expression.", &singleSignal,
+			  "simulate", "Generate a simulated expression dataset matched on effect size and residual variance of mapped eQTLs.", &simulate,
+			  "eqtl", "Specify eQTL file to output single genetic signal bed file.", &eqtl,
+			  "cov", "Optional covariates matrix if correcting phenotypes.
+
+
+ESTIMATING OR SPECIFYING RANKS AND WEIGHTS:
+", &cov,
+			  "get-weights", "Process the results on simulated data to estimate parameters matched on cohort.", & getWeights,
+			  "results", "File containing results on simulated data.", &results,
+			  "rank", "File to write rank proportion when processing results on simulated data or to read results from when mapping causal variants.", &rank,
+			  "weights", "File to write weights when processing results on simulated data or to read results from when mapping causal variants.
+
+
+PRODUCE ESTIMATES OF CAUSAL PROBABILITIES FROM CAVEMAN RESULTS:
+", &weights,
+			  "best", "Produce probabilities for most significant association from results file.
+
+
+OTHER COMMANDS:
+", &best,
+			  "version", "Display version information.", &version_,
 			  );
     // dfmt on
 
@@ -86,8 +116,7 @@ class Opts
 
 USAGE:    CaVEMaN [options]
 
-OPTIONS:
-
+GENERAL OPTIONS:
 ",
             options.options);
 
@@ -128,7 +157,7 @@ OPTIONS:
           bed = args[$ - 1];
         }
 
-        if (perms.length == 0)
+        if (perms.length == 0 && !simulate)
         {
           perms = [10_000];
         }
@@ -148,7 +177,7 @@ OPTIONS:
 
 USAGE:    CaVEMaN [options]
 
-OPTIONS:
+GENERAL OPTIONS:
 ", helpOptions.options);
       if (noArgs)
         exit(0);
@@ -251,7 +280,7 @@ OPTIONS:
         exit(1);
       }
 
-      if (correct != "" && cov != "")
+      if ((singleSignal || simulate) && cov != "")
       {
 
         string[] covIds;

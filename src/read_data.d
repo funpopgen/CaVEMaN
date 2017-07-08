@@ -113,14 +113,14 @@ auto readBed(const Opts opts)
     {
       if (opts.verbose)
       {
-	stderr.writeln("Gene ", line.split[3], " is constant. Nothing to analyse.");
+        stderr.writeln("Gene ", line.split[3], " is constant. Nothing to analyse.");
       }
     }
     catch (Exception e)
     {
       if (opts.verbose)
       {
-	stderr.writeln("Failed to read gene ", line.split[3], ".");
+        stderr.writeln("Failed to read gene ", line.split[3], ".");
       }
     }
     geneCount--;
@@ -193,28 +193,28 @@ auto makeOut(const Opts opts)
 
 }
 
-double[] readWeights(const Opts opts)
+double[] readRanks(const Opts opts)
 {
-  double[] weights;
+  double[] ranks;
 
-  if (opts.weights != "")
+  if (opts.rank != "")
   {
     try
     {
-      weights = File(opts.weights).byLine.map!(a => to!double(a)).array;
+      ranks = File(opts.rank).byLine.map!(a => to!double(a)).array;
     }
     catch (Exception e)
     {
-      stderr.writeln("Failed to read weights.");
+      stderr.writeln("Failed to read ranks.");
       exit(1);
     }
   }
   else
   {
     //weights based on simulation results across tissues
-    weights = [0.5168, 0.1603, 0.09758, 0.06664, 0.04562, 0.03109, 0.02749,
+    ranks = [0.5168, 0.1603, 0.09758, 0.06664, 0.04562, 0.03109, 0.02749,
       0.02145, 0.01914, 0.01382];
 
   }
-  return weights;
+  return ranks;
 }
