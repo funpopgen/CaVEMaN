@@ -44,7 +44,7 @@ The bed file should only contain genes for which an eQTL has been discovered, un
 4. Reference allele
 5. Alternate allele
 
-The `--single-signal` and `simulate` options can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.
+The `--single-signal` and `--simulate` options can also take a covariates file. This should be tab separated, the first row should contain subject IDs, and there should be one row for each covariate.
 
 ***
 
