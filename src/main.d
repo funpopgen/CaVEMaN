@@ -121,16 +121,19 @@ else
   import std.array : split;
   import std.digest.sha : SHA1, toHexString;
   import std.file : exists, remove;
+  import std.format : format;
   import std.range : put;
   import std.uuid : randomUUID;
 
   auto testFile1 = randomUUID.toString;
   auto testFile2 = randomUUID.toString;
+  auto testFile3 = randomUUID.toString;
 
   while (testFile1.exists || testFile2.exists)
   {
     testFile1 = randomUUID.toString;
     testFile2 = randomUUID.toString;
+    testFile3 = randomUUID.toString;
   }
 
   scope (exit)
@@ -139,6 +142,8 @@ else
       testFile1.remove;
     if (testFile2.exists)
       testFile2.remove;
+    if (testFile3.exists)
+      testFile3.remove;
   }
 
   // ./bin/CaVEMaN --bed data/phenotype.bed --job-number 1 --genes 10 --vcf data/genotype.vcf.gz --perm 100000,4
@@ -148,7 +153,7 @@ else
 
   auto phenotype = readBed(opts);
 
-  const auto permutations = genPerms(opts, phenotype[0].values.length);
+  auto permutations = genPerms(opts, phenotype[0].values.length);
 
   auto outFile = makeOut(opts);
 
@@ -191,8 +196,7 @@ else
   // ./bin/CaVEMaN --single-signal data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz
 
   const auto optsCorrect = new Opts(
-      (
-      "./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --out "
+      ("./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --out "
       ~ testFile1).split);
 
   correct(optsCorrect);
@@ -203,8 +207,7 @@ else
   assert(toHexString(hash.finish) == "FDED43C25211773C54FB6F854FFED8D0A0CFEA9C");
   stderr.writeln("Passed: correct phenotypes.");
 
-  const auto optsNormal = new Opts((
-      "./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --normal --out " ~ testFile1)
+  const auto optsNormal = new Opts(("./bin/CaVEMaN --single-signal --eqtl data/eQTL --bed data/phenotype.bed --vcf data/genotype.vcf.gz --normal --out " ~ testFile1)
       .split);
 
   correct(optsNormal);
@@ -227,4 +230,67 @@ else
 
   assert(toHexString(hash.finish) == "798E1AD6FF67BCEE6C96B19E8297F107439E6609");
   stderr.writeln("Passed: correct with covariates.");
+
+  // ./bin/CaVEMaN --simulate --vcf data/genotype.vcf.gz --bed data/phenotype.bed --eqtl data/eQTL --perm 4
+
+  const auto optsSimulate = new Opts(("./bin/CaVEMaN --simulate --vcf data/genotype.vcf.gz --bed data/phenotype.bed --eqtl data/eQTL --perm 4 --out " ~ testFile1)
+      .split);
+
+  correct(optsSimulate);
+
+  hash.start;
+  put(hash, File(testFile1).byChunk(1024));
+
+  assert(toHexString(hash.finish) == "30FD6ED49364F687568AE284A080CF58D624F215");
+  stderr.writeln("Passed: simulating data.");
+
+  const auto optsRunSimulation = new Opts(format("./bin/CaVEMaN --bed %s --vcf data/genotype.vcf.gz --perm 10000,4 --job-number 1 --genes 10 --out %s", testFile1, testFile3).split);
+
+  phenotype = readBed(optsRunSimulation);
+
+  permutations = genPerms(optsRunSimulation, phenotype[0].values.length);
+
+  outFile = makeOut(optsRunSimulation);
+
+  foreach (ref e; phenotype)
+  {
+    caveman(e, permutations, outFile, opts);
+  }
+
+  outFile.close;
+
+
+  const auto optsWeights = new Opts(format("./bin/CaVEMaN --get-weights --results %s --rank %s --weights %s", testFile3, testFile1, testFile2).split);
+
+  getWeights(optsWeights);
+
+  version (LDC)
+  {
+    hash.start;
+    put(hash, File(testFile1).byChunk(1024));
+
+    assert(toHexString(hash.finish) == "6FF7D9DFD6DD9BD4880BB8642B2EFB4A4C0878D9");
+
+    hash.start;
+    put(hash, File(testFile2).byChunk(1024));
+
+    assert(toHexString(hash.finish) == "BCFB04A5F3D632F36493ACF7CFCD3D01DEFD141E");
+
+    stderr.writeln("Passed: estimating ranks and weights.");
+  }
+
+  version (DigitalMars)
+  {
+    hash.start;
+    put(hash, File(testFile1).byChunk(1024));
+
+    assert(toHexString(hash.finish) == "6FF7D9DFD6DD9BD4880BB8642B2EFB4A4C0878D9");
+
+    hash.start;
+    put(hash, File(testFile2).byChunk(1024));
+
+    assert(toHexString(hash.finish) == "26B8704D251F7B6B789399A5D8DB05174DB1E49E");
+
+    stderr.writeln("Passed: estimating ranks and weights.");
+  }
 }

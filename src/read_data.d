@@ -201,11 +201,11 @@ double[] readRanks(const Opts opts)
   {
     try
     {
-      ranks = File(opts.rank).byLine.map!(a => to!double(a)).array;
+      ranks = File(opts.weights).byLine.map!(a => to!double(a)).array;
     }
     catch (Exception e)
     {
-      stderr.writeln("Failed to read ranks.");
+      stderr.writeln("Failed to read weights.");
       exit(1);
     }
   }

@@ -2,7 +2,7 @@ module weights;
 
 import arg_parse : Opts;
 import core.stdc.stdlib : exit;
-import std.algorithm : count, sort, uniq;
+import std.algorithm : count, filter, map, sort, sum, uniq;
 import std.array : split;
 import std.conv : to;
 import std.range : iota;
@@ -18,7 +18,7 @@ struct Gene
 
   this(string[] line)
   {
-    causal = line[0].split("_")[1 .. $];
+    causal = line[0].split("_")[($ - 4) .. $];
     caveman = line[7].to!double;
     pVal = line[6].to!double;
     if (causal == line[1 .. 5])
@@ -54,18 +54,22 @@ void getWeights(const Opts opts)
 
   Gene[] genes;
   double[] allPVals;
+  double pVal;
   allPVals.assumeSafeAppend;
   string currentGene = "";
-  
+
   foreach (line; inFile.byLine)
   {
     auto splitLine = line.split;
     auto gene = splitLine[0].to!string;
-    auto pVal = splitLine[6].to!double;
+    pVal = splitLine[6].to!double;
 
     if (currentGene != gene)
     {
-      genes[$ - 1].rank = allPVals.sort!().uniq.count!(a => a < pVal);
+      if (genes.length > 0)
+      {
+        genes[$ - 1].rank = allPVals.sort!().uniq.count!(a => a < genes[$ - 1].causalP);
+      }
       currentGene = gene;
       genes ~= Gene(splitLine.to!(string[]));
       allPVals.length = 0;
@@ -82,8 +86,10 @@ void getWeights(const Opts opts)
 
   }
 
-  genes.sort!((a, b) => a.caveman > b.caveman);
-  
+  genes[$ - 1].rank = allPVals.sort!().uniq.count!(a => a < genes[$ - 1].causalP);
+
+  genes.sort!((a, b) => a.caveman < b.caveman);
+
   try
   {
     weightFile = File(opts.weights, "w");
@@ -104,7 +110,7 @@ void getWeights(const Opts opts)
     exit(1);
   }
 
-  size_t[size_t] rankCounts;
+  double[size_t] rankCounts;
 
   foreach (ref e; genes)
   {
@@ -114,19 +120,34 @@ void getWeights(const Opts opts)
     }
     else
     {
-      rankCounts[e.rank] = 1;
+      rankCounts[e.rank] = 1.0;
     }
   }
 
-  foreach(e; rankCounts.keys.sort!())
+  if (opts.verbose)
   {
-    rankFile.writeln(e, "\t", rankCounts[e]);
+    foreach (e; rankCounts.keys.sort!())
+    {
+      stderr.writeln(e, "\t", rankCounts[e]);
+    }
   }
 
-  foreach (e; iota(1, 21, 3))
+  double totalRanks = iota(0, 10).filter!(a => a in rankCounts)
+    .map!(a => rankCounts[a]).sum;
+
+  foreach (e; 0 .. 10)
   {
-    weightFile.writeln(genes[e * genes.length / 20].caveman,
-		       "\t",
-		       genes[0 .. (e * genes.length / 20 + 1)].count!(a => a.rank == 0).to!double / (e * genes.length / 20 + 1).to!double);
+    rankFile.writeln(e, "\t", e in rankCounts ? rankCounts[e] / totalRanks : 0);
   }
+
+  weightFile.writeln("0\t0");
+
+  foreach (e; iota(1, 41, 2))
+  {
+    weightFile.writeln(genes[e * genes.length / 40].caveman, "\t",
+        genes[(e - 1) * genes.length / 40 .. (e + 1) * genes.length / 40].count!(a => a.rank == 0)
+        .to!double / (genes.length / 20).to!double);
+  }
+
+  weightFile.writeln("1\t1");
 }

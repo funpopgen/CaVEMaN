@@ -129,7 +129,13 @@ GENERAL OPTIONS:
       if (version_)
         giveHelp(versionString);
 
-      if (best == "")
+      if ((singleSignal + simulate + (best != "")) > 1)
+      {
+        stderr.writeln("More than one mode specified.");
+        exit(1);
+      }
+
+      if (best == "" && !getWeights)
       {
         immutable auto checkTabix = executeShell("command -v tabix");
 

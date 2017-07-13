@@ -9,7 +9,7 @@ import std.exception : enforce;
 import std.format : format;
 import std.math : approxEqual, sqrt;
 import std.process : pipeShell, Redirect, wait;
-import std.random : Random, uniform, unpredictableSeed;
+import std.random : Random, uniform01, unpredictableSeed;
 import std.range : enumerate, indexed, iota, zip;
 import std.stdio : File, stderr, stdout, write, writef, writefln, writeln;
 import std.string : chomp;
@@ -81,10 +81,14 @@ extern (C)
   int gsl_multifit_linear_residuals(const gsl_matrix* X, const gsl_vector* y,
       const gsl_vector* c, gsl_vector* r);
 
+  int gsl_fit_linear(const double* x, const size_t xstride, const double* y,
+      const size_t ystride, size_t n, double* c0, double* c1, double* cov00,
+      double* cov01, double* cov11, double* sumsq);
+
+  double gsl_cdf_gaussian_Pinv(double P, double sigma);
+
   double gsl_cdf_ugaussian_Pinv(double P);
-
-  int gsl_fit_linear(const double * x, const size_t xstride, const double * y, const size_t ystride, size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq);
-
+  double gsl_stats_sd(const double* data, size_t stride, size_t n);
 }
 
 void correct(const Opts opts)
@@ -276,117 +280,123 @@ void writeBed(const Opts opts, string[][string] eqtlList, double[][string] snps,
     {
       if (eqtlList[bedLineSplit[3]].length == 1 && baseCov == 0 && !opts.simulate)
       {
-	outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], eqtlList[bedLineSplit[3]][0]);
-	if (opts.normal)
+        outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], eqtlList[bedLineSplit[3]][0]);
+        if (opts.normal)
         {
-	  auto values = bedLineSplit[4 .. $].indexed(opts.phenotypeLocations)
-	    .map!(a => to!double(a)).array;
-	  normalise(values);
-	  outFile.writefln("%-(%g\t%)", values);
-	}
-	else
+          auto values = bedLineSplit[4 .. $].indexed(opts.phenotypeLocations)
+            .map!(a => to!double(a)).array;
+          normalise(values);
+          outFile.writefln("%-(%g\t%)", values);
+        }
+        else
         {
-            outFile.writefln("%-(%s\t%)", bedLineSplit[4 .. $].indexed(opts.phenotypeLocations));
-	}
+          outFile.writefln("%-(%s\t%)", bedLineSplit[4 .. $].indexed(opts.phenotypeLocations));
+        }
       }
       else
       {
-	auto nCov = eqtlList[bedLineSplit[3]].length + baseCov;
-	auto covariates = gsl_matrix_alloc(nInd, nCov);
-	auto coefficients = gsl_vector_alloc(nCov);
-	auto corrMat = gsl_matrix_alloc(nCov, nCov);
+        auto nCov = eqtlList[bedLineSplit[3]].length + baseCov;
+        auto covariates = gsl_matrix_alloc(nInd, nCov);
+        auto coefficients = gsl_vector_alloc(nCov);
+        auto corrMat = gsl_matrix_alloc(nCov, nCov);
 
-	scope (exit)
+        scope (exit)
         {
-	  gsl_matrix_free(covariates);
-	  gsl_matrix_free(corrMat);
-	  gsl_vector_free(coefficients);
-	}
+          gsl_matrix_free(covariates);
+          gsl_matrix_free(corrMat);
+          gsl_vector_free(coefficients);
+        }
 
-	foreach (i; 0 .. nInd)
+        foreach (i; 0 .. nInd)
         {
-	  gsl_matrix_set(covariates, i, 0, 1);
-	  gsl_vector_set(outcome, i, bedLineSplit[opts.phenotypeLocations[i] + 4].to!double);
-	}
+          gsl_matrix_set(covariates, i, 0, 1);
+          gsl_vector_set(outcome, i, bedLineSplit[opts.phenotypeLocations[i] + 4].to!double);
+        }
 
-	foreach (i, e; cov)
+        foreach (i, e; cov)
         {
-	  gsl_matrix_set(covariates, i % nInd, i / nInd + 1, e);
-	}
+          gsl_matrix_set(covariates, i % nInd, i / nInd + 1, e);
+        }
 
-	auto snpKeys = eqtlList[bedLineSplit[3]];
+        auto snpKeys = eqtlList[bedLineSplit[3]];
 
-	foreach (e; snpKeys)
+        foreach (e; snpKeys)
         {
-	  auto j = 1 + baseCov;
-	  foreach (i, f; enumerate(snpKeys))
+          auto j = 1 + baseCov;
+          foreach (i, f; enumerate(snpKeys))
           {
-	    if (f != e)
+            if (f != e)
             {
-	      foreach (k; 0 .. nInd)
+              foreach (k; 0 .. nInd)
               {
-		gsl_matrix_set(covariates, k, j, snps[f][k]);
-	      }
-	      j++;
-	    }
-	  }
+                gsl_matrix_set(covariates, k, j, snps[f][k]);
+              }
+              j++;
+            }
+          }
 
-	  gsl_multifit_linear(covariates, outcome, coefficients, corrMat, &chisq, workSpace);
-	  gsl_multifit_linear_residuals(covariates, outcome, coefficients, residuals);
+          gsl_multifit_linear(covariates, outcome, coefficients, corrMat, &chisq, workSpace);
+          gsl_multifit_linear_residuals(covariates, outcome, coefficients, residuals);
 
-	  auto values = gslToArray(residuals);
+          auto values = gslToArray(residuals);
 
-	  if (!opts.simulate)
-	  {
-	    if (opts.normal)
+          if (!opts.simulate)
+          {
+            if (opts.normal)
             {
-	      normalise(values);
-	    }
+              normalise(values);
+            }
 
-	    outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], e);
-	    outFile.writefln("%-(%g\t%)", values);
-	  }
-	  else
-	  {
+            outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], e);
+            outFile.writefln("%-(%g\t%)", values);
+          }
+          else
+          {
 
-	    outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], e);
+            outFile.writef("%-(%s\t%)_%s\t", bedLineSplit[0 .. 4], e);
 
-	    double c0, effectSize, cov00, cov01, cov11, sigma;
+            double c0, effectSize, cov00, cov01, cov11, sigma;
 
-	    gsl_fit_linear(snps[e].ptr, 1, values.ptr, 1, values.length, &c0, &effectSize, &cov00, &cov01, &cov11, &sigma);
+            gsl_fit_linear(snps[e].ptr, 1, values.ptr, 1, values.length, &c0,
+                &effectSize, &cov00, &cov01, &cov11, &sigma);
 
-	    sigma = sqrt(sigma / (nInd - 2));
+            sigma = sqrt(sigma / (nInd - 2));
 
-	    values[] = 0;
-	    size_t seed = uniform!size_t(rnd);
-
-	    if (opts.verbose)
+            if (opts.verbose)
             {
-	      stderr.writeln("For gene ", bedLine.split[3], " the effect size estimate is ",
-			     effectSize, "; sigma estimate is ", sigma, ".");
-	    }
+              stderr.writeln("For gene ", bedLine.split[3], " the effect size estimate is ",
+                  effectSize, "; sigma estimate is ", sigma, ".");
+            }
 
-	    generateRandomValues(values.ptr, values.length, sigma, seed);
+            values = iota(nInd).map!(a => gsl_cdf_gaussian_Pinv(uniform01(rnd), sigma)).array;
 
-	    foreach (ref f; zip(snps[e], values))
+            foreach (i; 0 .. values.length)
             {
-	      f[1] += effectSize * f[0];
-	    }
+              values[i] += effectSize * snps[e][i];
+            }
 
-	    if (opts.normal)
+            gsl_fit_linear(snps[e].ptr, 1, values.ptr, 1, values.length, &c0,
+                &effectSize, &cov00, &cov01, &cov11, &sigma);
+
+            if (opts.verbose)
             {
-	      normalise(values);
-	    }
-	    outFile.writefln("%-(%g\t%)", values);
+              stderr.writeln("After: For gene ", bedLine.split[3], " the effect size estimate is ",
+                  effectSize, "; sigma estimate is ", sqrt(sigma / (nInd - 2)), ".");
+            }
 
-	  }
-	}
+            if (opts.normal)
+            {
+              normalise(values);
+            }
+            outFile.writefln("%-(%g\t%)", values);
+
+          }
+        }
       }
 
     }
   }
 }
-
 
 void normalise(ref double[] residuals)
 {

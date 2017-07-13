@@ -1,9 +1,11 @@
 #!/bin/bash
+for x in "testtemp" "testtemp1" "testtemp2"; do
+    if [ -f $x ]; then
+	echo "Running tests would overwrite a temporary file:" $x
+	exit 1
+    fi
+done
 
-if [ -f "testtemp" ]; then
-    echo "Running tests would overwrite testtemp file"
-    exit 1
-fi
 
 ./bin/CaVEMaN --bed data/phenotype.bed --job-number 1 --genes 10 --vcf data/genotype.vcf.gz --perm 100000,4 > testtemp
 
@@ -43,5 +45,19 @@ else
     echo "Failed: correct with covariates."
     exit 1
 fi
+
+./bin/CaVEMaN --simulate --vcf data/genotype.vcf.gz --bed data/phenotype.bed --eqtl data/eQTL --perm 4 --out testtemp
+./bin/CaVEMaN ./bin/CaVEMaN --bed testtemp --vcf data/genotype.vcf.gz --perm 10000,4 --job-number 1 --genes 10 --out testtemp2
+./bin/CaVEMaN --get-weights --results testtemp2 --rank testtemp --weights testtemp1
+
+if [[ ($( sha1sum testtemp | awk {'print toupper($1)'}) == "6FF7D9DFD6DD9BD4880BB8642B2EFB4A4C0878D9") &&
+	  ($( sha1sum testtemp1 | awk {'print toupper($1)'}) == "BCFB04A5F3D632F36493ACF7CFCD3D01DEFD141E")]]; then
+    echo "Passed: estimating ranks and weights."
+else
+    echo "Failed: estimating ranks and weights."
+    exit 1
+fi
+
+rm -f testtemp*
 
 echo "All tests completed successfully."
