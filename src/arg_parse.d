@@ -326,7 +326,7 @@ GENERAL OPTIONS:
 
 }
 
-static immutable string versionString = "CaVEMaN, Causal Variant Evidence Mapping using Non-parametric Sampling, version 1.0";
+static immutable string versionString = "CaVEMaN, Causal Variant Evidence Mapping using Non-parametric Sampling, version 1.01";
 static immutable string commitString = chomp(cast(string) import("commit"));
 
 void giveHelp(immutable string quitString)
