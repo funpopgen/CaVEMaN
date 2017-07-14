@@ -20,7 +20,7 @@ Given the results of an eQTL mapping analysis, together with the expression, gen
 
 CaVEMaN binaries can be downloaded from here:
 
-[https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0](https://github.com/funpopgen/CaVEMaN/releases/tag/v1.0)
+[https://github.com/funpopgen/CaVEMaN/releases/tag/v1.01](https://github.com/funpopgen/CaVEMaN/releases/tag/v1.01)
 
 The standard binary is called CaVEMaN. Use CaVEMaN_CentOS if there is an error referring to GLIBC.
 
