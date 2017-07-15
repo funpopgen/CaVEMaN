@@ -19,6 +19,7 @@ if [[ $dmd == false ]]; then
        echo "Passed: CaVEMaN."
    else
        echo "Failed: CaVEMaN."
+       rm -f testtemp
        exit 1
    fi
 else
@@ -26,6 +27,7 @@ else
 	echo "Passed: CaVEMaN."
     else
 	echo "Failed: CaVEMaN."
+	rm -f testtemp
 	exit 1
     fi
 fi
@@ -35,6 +37,7 @@ if [[ $( ./bin/CaVEMaN --best testtemp | sha1sum | awk {'print toupper($1)'}) ==
     echo "Passed: extract best."
 else
     echo "Failed: extract best."
+    rm -f testtemp
     exit 1
 fi
 
@@ -71,6 +74,7 @@ if [[ $dmd == false ]]; then
 	echo "Passed: estimating ranks and weights."
     else
 	echo "Failed: estimating ranks and weights."
+	rm -f testtemp testtemp1 testtemp2
 	exit 1
     fi
 else
@@ -79,10 +83,11 @@ else
 	echo "Passed: estimating ranks and weights."
     else
 	echo "Failed: estimating ranks and weights."
+	rm -f testtemp testtemp1 testtemp2
 	exit 1
     fi
 fi
 
-rm -f testtemp*
+rm -f testtemp testtemp1 testtemp2
 
 echo "All tests completed successfully."
