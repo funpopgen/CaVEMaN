@@ -6,7 +6,7 @@ import std.algorithm : count, filter, map, sort, sum, uniq;
 import std.array : split;
 import std.conv : to;
 import std.range : iota;
-import std.stdio : File, readln, stderr, stdout, writeln;
+import std.stdio : File, readln, stderr, writeln;
 
 struct Gene
 {

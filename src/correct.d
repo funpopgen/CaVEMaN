@@ -5,12 +5,11 @@ import std.algorithm : makeIndex, map, max, reduce;
 import std.array : array, split;
 import std.conv : to;
 import std.exception : enforce;
-import std.exception : enforce;
 import std.format : format;
 import std.math : approxEqual, sqrt;
 import std.process : pipeShell, Redirect, wait;
 import std.random : Random, uniform01, unpredictableSeed;
-import std.range : enumerate, indexed, iota, zip;
+import std.range : enumerate, indexed, iota;
 import std.stdio : File, stderr, stdout, write, writef, writefln, writeln;
 import std.string : chomp;
 
