@@ -8,7 +8,7 @@ ldc : ${DSOURCES} src/interpolate.o views/commit
 	${LDC} -release -enable-inlining -O -w -oq -Jviews ${DSOURCES} src/interpolate.o -of="bin/CaVEMaN"
 	rm -f src/*.o bin/*.o *.o
 
-test : ${DSOURCES} src/interpolate.o
+test : ${DSOURCES} src/interpolate.o views/commit
 	${LDC} -d-debug -g -unittest -w -Jviews ${DSOURCES} src/interpolate.o -of="unittest"
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
@@ -18,7 +18,7 @@ static : ${DSOURCES} src/static_interpolate.o views/commit
 	rm -f *.o
 	rm -f src/*.o bin/*.o *.o
 
-static_test : ${DSOURCES} src/static_interpolate.o
+static_test : ${DSOURCES} src/static_interpolate.o views/commit
 	${LDC} -d-debug -g -unittest -w -d-version=STATICLINKED -I${GSL}/include -Jviews ${DSOURCES} src/static_interpolate.o ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a -of="unittest"
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
@@ -27,7 +27,7 @@ dmd : ${DSOURCES} src/interpolate.o views/commit
 	${DMD} -O -release -noboundscheck -inline -Jviews ${DSOURCES} src/interpolate.o -ofbin/CaVEMaN
 	rm -f src/*.o bin/*.o *.o
 
-dmd_test : ${DSOURCES} src/interpolate.o
+dmd_test : ${DSOURCES} src/interpolate.o views/commit
 	${DMD} -debug -g -unittest -w -Jviews ${DSOURCES} src/interpolate.o -ofunittest
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
@@ -36,7 +36,7 @@ dmd_static : ${DSOURCES} src/static_interpolate.o views/commit
 	${DMD} -O -release -noboundscheck -inline -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a -Jviews ${DSOURCES} src/static_interpolate.o -ofbin/CaVEMaN
 	rm -f src/*.o bin/*.o *.o
 
-dmd_static_test : ${DSOURCES} src/static_interpolate.o
+dmd_static_test : ${DSOURCES} src/static_interpolate.o views/commit
 	${DMD} -debug -g -unittest -w -version=STATICLINKED -I${GSL}/include ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a -Jviews ${DSOURCES} src/static_interpolate.o -ofunittest
 	./unittest
 	rm -f unittest src/*.o bin/*.o *.o
