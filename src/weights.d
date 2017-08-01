@@ -2,7 +2,7 @@ module weights;
 
 import arg_parse : Opts;
 import core.stdc.stdlib : exit;
-import std.algorithm : count, filter, map, sort, sum, uniq;
+import std.algorithm : count, each, filter, map, sort, sum, uniq;
 import std.array : split;
 import std.conv : to;
 import std.range : iota;
@@ -112,42 +112,22 @@ void getWeights(const Opts opts)
 
   double[size_t] rankCounts;
 
-  foreach (ref e; genes)
-  {
-    if (e.rank in rankCounts)
-    {
-      rankCounts[e.rank]++;
-    }
-    else
-    {
-      rankCounts[e.rank] = 1.0;
-    }
-  }
+  genes.each!(a => ++rankCounts[a.rank]);
 
   if (opts.verbose)
   {
-    foreach (e; rankCounts.keys.sort!())
-    {
-      stderr.writeln(e, "\t", rankCounts[e]);
-    }
+    rankCounts.keys.sort!().each!(a => stderr.writeln(a, "\t", rankCounts[a]));
   }
 
-  double totalRanks = iota(0, 10).filter!(a => a in rankCounts)
-    .map!(a => rankCounts[a]).sum;
+  double totalRanks = iota(0, 10).filter!(a => a in rankCounts).map!(a => rankCounts[a]).sum;
 
-  foreach (e; 0 .. 10)
-  {
-    rankFile.writeln(e, "\t", e in rankCounts ? rankCounts[e] / totalRanks : 0);
-  }
+  iota(0, 10).each!(a => rankFile.writeln(a, "\t", a in rankCounts ? rankCounts[a] / totalRanks : 0));
 
   weightFile.writeln("0\t0");
 
-  foreach (e; iota(1, 41, 2))
-  {
-    weightFile.writeln(genes[e * genes.length / 40].caveman, "\t",
-        genes[(e - 1) * genes.length / 40 .. (e + 1) * genes.length / 40].count!(a => a.rank == 0)
-        .to!double / (genes.length / 20).to!double);
-  }
+  iota(1, 41, 2).each!(a => weightFile.writeln(genes[a * genes.length / 40].caveman,
+      "\t", genes[(a - 1) * genes.length / 40 .. (a + 1) * genes.length / 40].count!(b => b.rank == 0)
+      .to!double / (genes.length / 20).to!double));
 
   weightFile.writeln("1\t1");
 }

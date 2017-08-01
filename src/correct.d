@@ -1,3 +1,5 @@
+module correct;
+
 import arg_parse : Opts;
 import core.stdc.stdlib : exit;
 import read_data : getDosage, InputException;

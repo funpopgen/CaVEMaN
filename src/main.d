@@ -1,3 +1,5 @@
+module main;
+
 /* The GPL v3 License
 
    Copyright (C) 2016 University of Geneva.
@@ -233,8 +235,9 @@ else
 
   // ./bin/CaVEMaN --simulate --vcf data/genotype.vcf.gz --bed data/phenotype.bed --eqtl data/eQTL --perm 4
 
-  const auto optsSimulate = new Opts(("./bin/CaVEMaN --simulate --vcf data/genotype.vcf.gz --bed data/phenotype.bed --eqtl data/eQTL --perm 4 --out " ~ testFile1)
-      .split);
+  const auto optsSimulate = new Opts(
+      ("./bin/CaVEMaN --simulate --vcf data/genotype.vcf.gz --bed data/phenotype.bed --eqtl data/eQTL --perm 4 --out "
+      ~ testFile1).split);
 
   correct(optsSimulate);
 
@@ -244,7 +247,9 @@ else
   assert(toHexString(hash.finish) == "30FD6ED49364F687568AE284A080CF58D624F215");
   stderr.writeln("Passed: simulating data.");
 
-  const auto optsRunSimulation = new Opts(format("./bin/CaVEMaN --bed %s --vcf data/genotype.vcf.gz --perm 10000,4 --job-number 1 --genes 10 --out %s", testFile1, testFile3).split);
+  const auto optsRunSimulation = new Opts(format(
+      "./bin/CaVEMaN --bed %s --vcf data/genotype.vcf.gz --perm 10000,4 --job-number 1 --genes 10 --out %s",
+      testFile1, testFile3).split);
 
   phenotype = readBed(optsRunSimulation);
 
@@ -259,38 +264,28 @@ else
 
   outFile.close;
 
-
-  const auto optsWeights = new Opts(format("./bin/CaVEMaN --get-weights --results %s --rank %s --weights %s", testFile3, testFile1, testFile2).split);
+  const auto optsWeights = new Opts(format("./bin/CaVEMaN --get-weights --results %s --rank %s --weights %s",
+      testFile3, testFile1, testFile2).split);
 
   getWeights(optsWeights);
 
+  hash.start;
+  put(hash, File(testFile1).byChunk(1024));
+
+  assert(toHexString(hash.finish) == "6FF7D9DFD6DD9BD4880BB8642B2EFB4A4C0878D9");
+
+  hash.start;
+  put(hash, File(testFile2).byChunk(1024));
+
   version (LDC)
   {
-    hash.start;
-    put(hash, File(testFile1).byChunk(1024));
-
-    assert(toHexString(hash.finish) == "6FF7D9DFD6DD9BD4880BB8642B2EFB4A4C0878D9");
-
-    hash.start;
-    put(hash, File(testFile2).byChunk(1024));
-
     assert(toHexString(hash.finish) == "BCFB04A5F3D632F36493ACF7CFCD3D01DEFD141E");
-
-    stderr.writeln("Passed: estimating ranks and weights.");
   }
 
-  version (DigitalMars)
+  version (DIGITALMARS)
   {
-    hash.start;
-    put(hash, File(testFile1).byChunk(1024));
-
-    assert(toHexString(hash.finish) == "6FF7D9DFD6DD9BD4880BB8642B2EFB4A4C0878D9");
-
-    hash.start;
-    put(hash, File(testFile2).byChunk(1024));
-
     assert(toHexString(hash.finish) == "26B8704D251F7B6B789399A5D8DB05174DB1E49E");
-
-    stderr.writeln("Passed: estimating ranks and weights.");
   }
+
+  stderr.writeln("Passed: estimating ranks and weights.");
 }
