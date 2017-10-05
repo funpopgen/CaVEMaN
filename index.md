@@ -140,15 +140,15 @@ This should create a folder called CaVEMaN. Inside this folder is a file called 
 
 ### Download a D compiler
 
-Then, download a D compiler from either here: [https://github.com/ldc-developers/ldc/releases](https://github.com/ldc-developers/ldc/releases) or here: [http://dlang.org/dmd-linux.html](http://dlang.org/dmd-linux.html) (ldc produces faster software, my experience is that dmd works better on older operating systems). Decompress the downloaded file, then edit either the third or fourth line of the makefile in the CaVEMaN folder so that it contains the full path to the relevant compiler, i.e. either:
+Then, download a D compiler from either here: [https://github.com/ldc-developers/ldc/releases](https://github.com/ldc-developers/ldc/releases) or here: [http://dlang.org/dmd-linux.html](http://dlang.org/dmd-linux.html) (ldc produces faster software, my experience is that dmd works better on older operating systems). Decompress the downloaded file, then edit either the first or second line of the makefile in the CaVEMaN folder so that it contains the full path to the relevant compiler, i.e. either:
 
-**DMD = /path/to/dmd2/linux/bin64/dmd**
+**DMD := /path/to/dmd2/linux/bin64/dmd**
 
 or
 
-**LDC = /path/to/ldc2-1.1.0-beta2-linux-x86_64/bin/ldc2**
+**LDC := /path/to/ldc2-1.1.0-beta2-linux-x86_64/bin/ldc2**
 
-### Installing, if necessary, gsl v2.1
+### Installing, if necessary, a recent version of the gsl
 
 First, check if a sufficiently recent version of the gsl is already installed by running:
 
@@ -156,26 +156,29 @@ First, check if a sufficiently recent version of the gsl is already installed by
 
 If this states that version 2.1 or more recent is installed, you can move on to building the software.
 
-Otherwise, download the gsl from here: [http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz](http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz).
+Otherwise, download the gsl from here: [http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz](http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.4.tar.gz).
 
 Create a folder to install it to called gsl, then run the following commands:
 
-    tar -xf gsl-2.1.tar.gz
-    cd gsl-2.1/
+    tar -xf gsl-2.4.tar.gz
+    cd gsl-2.4/
     ./configure prefix=/path/to/gsl
     make
     make install
+	rm -rf gsl-2.4.tar.gz gsl-2.4
+
+Then, edit the third line of the makefile to point at the gsl folder:
+
+**GSL := /path/to/gsl**
 
 ### Building the software
 
-Now to compile, run the commands from the relevant cell in the table (which depend on which compiler you downloaded and whether the gsl was pre-installed).
+Now to compile the software run the following two commands:
 
-|      | ldc | dmd |
-|----- |-----|-----|
-|**GSL already installed** | make test && make | make dmd_test && make dmd |
-|**GSL installed by  you** | make static_test GSL=/path/to/gsl && make static GSL=/path/to/gsl | make dmd_static_test GSL=/path/to/gsl && make dmd_static GSL=/path/to/gsl |
+	make test
+	make
 
-Now the CaVEMaN binary should be within the bin folder in the CaVEMaN directory, running
+The CaVEMaN binary should be within the bin folder in the CaVEMaN directory, running
 
      ./bin/CaVEMaN --help
 
