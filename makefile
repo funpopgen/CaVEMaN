@@ -1,18 +1,18 @@
 LDC := ldc
 DMD := dmd
 GSL := ${shell pwd}/gsl
-DSOURCES := ${wildcard src/*.d}
+D_SOURCES := ${wildcard src/*.d}
 
-CHECK_GSL := ${shell gsl-config --version | awk '$$0 >= 2.1' 2> /dev/null}
 CHECK_LDC := ${shell command -v ${LDC} 2> /dev/null}
 CHECK_DMD := ${shell command -v ${DMD} 2> /dev/null}
+CHECK_GSL := ${shell gsl-config --version | awk '$$0 >= 2.1' 2> /dev/null}
 
 ifneq (${CHECK_GSL},)
 	C_SOURCES := src/interpolate.o
 else
 	GSL_FILES := ${GSL}/lib/libgsl.a ${GSL}/lib/libgslcblas.a
 	C_SOURCES := src/static_interpolate.o ${GSL_FILES}
-	CHECK_LOCAL_GSL := ${shell ${foreach f,${GSL_FILES},test -e "$f" || echo "$f";}}
+	CHECK_LOCAL_GSL := ${shell ${GSL}/bin/gsl-config --version | awk '$$0 >= 2.1' 2> /dev/null}
 endif
 
 ifneq (${CHECK_LDC},)
@@ -38,26 +38,26 @@ endif
 endif
 
 ifeq (${CHECK_GSL},)
-ifneq (${CHECK_LOCAL_GSL},)
+ifeq (${CHECK_LOCAL_GSL},)
 ${error GSL not installed at ${GSL}}
 endif
 endif
 
 CLEAN_OBJECTS := rm -f src/*.o bin/*.o *.o
 
-bin/CaVEMaN	: ${DSOURCES} ${C_SOURCES} views/commit
-	${COMPILER} ${RELEASE_FLAGS} ${DSOURCES} ${C_SOURCES} ${STATIC_FLAGS} -ofbin/CaVEMaN
+bin/CaVEMaN	: ${D_SOURCES} ${C_SOURCES} views/commit
+	${COMPILER} ${RELEASE_FLAGS} ${D_SOURCES} ${C_SOURCES} ${STATIC_FLAGS} -ofbin/CaVEMaN
 	${CLEAN_OBJECTS}
 
-test	: ${DSOURCES} ${C_SOURCES} views/commit
-	${COMPILER} ${DEBUG_FLAGS} ${DSOURCES} ${C_SOURCES} ${STATIC_FLAGS} -ofunittest
+test	: ${D_SOURCES} ${C_SOURCES} views/commit
+	${COMPILER} ${DEBUG_FLAGS} ${D_SOURCES} ${C_SOURCES} ${STATIC_FLAGS} -ofunittest
 	./unittest
 	${CLEAN_OBJECTS} unittest
 
-src/static_interpolate.o : src/interpolate.c ${GSL}/lib/libgsl.a
+src/static_interpolate.o : src/interpolate.c
 	cc -c src/interpolate.c -o src/static_interpolate.o -I${GSL}/include
 
-views/commit : ${DSOURCES} src/interpolate.c
+views/commit : ${D_SOURCES} src/interpolate.c
 	git rev-parse --short HEAD > views/commit
 
 .PHONY : test clean
