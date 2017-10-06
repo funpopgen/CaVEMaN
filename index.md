@@ -156,7 +156,7 @@ First, check if a sufficiently recent version of the gsl is already installed by
 
 If this states that version 2.1 or more recent is installed, you can move on to building the software.
 
-Otherwise, download the gsl from here: [http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.1.tar.gz](http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.4.tar.gz).
+Otherwise, download the gsl from here: [http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.4.tar.gz](http://mirror.switch.ch/ftp/mirror/gnu/gsl/gsl-2.4.tar.gz).
 
 Create a folder to install it to called gsl, then run the following commands:
 
@@ -165,7 +165,7 @@ Create a folder to install it to called gsl, then run the following commands:
     ./configure prefix=/path/to/gsl
     make
     make install
-	rm -rf gsl-2.4.tar.gz gsl-2.4
+	cd .. && rm -rf gsl-2.4.tar.gz gsl-2.4
 
 Then, edit the third line of the makefile to point at the gsl folder:
 
