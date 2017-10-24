@@ -75,22 +75,31 @@ void best(const Opts opts)
   foreach (line; inFile.byLine)
   {
     auto splitLine = line.split;
-    auto gene = splitLine[0].to!string;
 
-    if (!(gene in genes))
+    if (splitLine.length != 8)
     {
-      genes[gene] = Gene(line.to!string, splitLine[7].to!double, splitLine[6].to!double);
+      stderr.writeln(
+          "The following line appears to be truncated, this could be because of a previous job failing:");
+      stderr.writeln(line);
     }
-    else
     {
-      auto pVal = splitLine[6].to!double;
-      if (genes[gene].pVal > pVal)
+      auto gene = splitLine[0].to!string;
+
+      if (!(gene in genes))
       {
-        genes[gene] = Gene(line.to!string, splitLine[7].to!double, pVal);
+        genes[gene] = Gene(line.to!string, splitLine[7].to!double, splitLine[6].to!double);
       }
-      else if (genes[gene].pVal == pVal)
+      else
       {
-        genes[gene].update(line.to!string);
+        auto pVal = splitLine[6].to!double;
+        if (genes[gene].pVal > pVal)
+        {
+          genes[gene] = Gene(line.to!string, splitLine[7].to!double, pVal);
+        }
+        else if (genes[gene].pVal == pVal)
+        {
+          genes[gene].update(line.to!string);
+        }
       }
     }
 

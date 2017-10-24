@@ -124,8 +124,7 @@ auto getWeights(const Opts opts, const size_t[] permIndices,
   return snpWeights;
 }
 
-void writeResults(double[] snpWeights, Phenotype phenotype,
-    Genotype[] genotypes, File outFile)
+void writeResults(double[] snpWeights, Phenotype phenotype, Genotype[] genotypes, File outFile)
 {
   transform(phenotype.values);
 
