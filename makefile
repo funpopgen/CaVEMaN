@@ -58,6 +58,7 @@ src/static_interpolate.o : src/interpolate.c
 	cc -c src/interpolate.c -o src/static_interpolate.o -I${GSL}/include
 
 views/commit : ${D_SOURCES} src/interpolate.c
+	mkdir -p views
 	git rev-parse --short HEAD > views/commit
 
 .PHONY : test clean
