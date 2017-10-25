@@ -1,0 +1,37 @@
+baseUrl: https://funpopgen.github.io/CaVEMaN
+
+template:
+    url: https://github.com/ovac/ovac-couscous-template
+
+github:
+    user: funpopgen
+    repo: CaVEMaN
+
+title: CaVEMaN
+subtitle: Causal variant evidence mapping using non-parametric resampling
+
+menu:
+    sections:
+        home:
+            name: Contents
+            items:
+                home:
+                    text: Home
+                    relativeUrl:
+                contents:
+                    text: Contents
+                    relativeUrl:
+        links:
+            name: Links
+            items:
+                github:
+                    text: View page on github
+            # You can use relative urls
+                    absoluteUrl: https://github.com/funpopgen/CaVEMaN
+                download:
+                    text: Download page
+            # You can use relative urls
+                    absoluteUrl: https://github.com/funpopgen/CaVEMaN/releases/tag/v1.01
+                paper:
+                    text: Paper
+                    absoluteUrl: https://www.nature.com/ng/journal/vaop/ncurrent/full/ng.3979.html
