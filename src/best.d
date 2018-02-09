@@ -7,6 +7,7 @@ import std.algorithm : map, max, min, reduce, sort;
 import std.array : array, split;
 import std.conv : to;
 import std.exception : enforce;
+import std.math : fabs;
 import std.range : zip;
 import std.stdio : File, readln, stderr, stdout, writeln;
 import std.string : chomp;
@@ -22,12 +23,14 @@ struct Gene
   string[] lines;
   double caveman;
   double pVal;
+  double cor;
 
-  this(string line, double boot, double p)
+  this(string line, double caveman_, double pval_, double cor_)
   {
     lines = [line];
-    caveman = boot;
-    pVal = p;
+    caveman = caveman_;
+    pVal = pval_;
+    cor = cor_;
   }
 
   void update(string line)
@@ -87,18 +90,26 @@ void best(const Opts opts)
 
       if (!(gene in genes))
       {
-        genes[gene] = Gene(line.to!string, splitLine[7].to!double, splitLine[6].to!double);
+        genes[gene] = Gene(line.to!string, splitLine[7].to!double, splitLine[6].to!double, fabs(splitLine[5].to!double));
       }
       else
       {
         auto pVal = splitLine[6].to!double;
         if (genes[gene].pVal > pVal)
         {
-          genes[gene] = Gene(line.to!string, splitLine[7].to!double, pVal);
+          genes[gene] = Gene(line.to!string, splitLine[7].to!double, pVal, fabs(splitLine[5].to!double));
         }
         else if (genes[gene].pVal == pVal)
         {
-          genes[gene].update(line.to!string);
+	  auto cor = fabs(splitLine[5].to!double);
+	  if (genes[gene].cor < cor)
+	  {
+	    genes[gene] = Gene(line.to!string, splitLine[7].to!double, pVal, cor);
+	  }
+	  else if (genes[gene].cor == cor)
+	  {
+	    genes[gene].update(line.to!string);
+	  }
         }
       }
     }
