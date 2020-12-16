@@ -1,6 +1,7 @@
 module run_analysis;
 
-import calculation : correlation, Opts, transform, VarianceException;
+import arg_parse : Opts;
+import calculation : correlation, transform, VarianceException;
 import read_data : Genotype, Phenotype, readGenotype, readRanks;
 import std.algorithm : map, sum;
 import std.array : array;
